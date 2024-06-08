@@ -21,13 +21,12 @@ public class NewSendingTests extends TestBase {
     @DisplayName("Авторизованный Пользователь может создать отправку посылки онлайн по тарифу ускоренный")
     @Owner("Роман Чесанов (@ChesKnow")
     @Severity(SeverityLevel.CRITICAL)
-
     void authorizedUserCanCreateNewParcelSending() {
         Configuration.assertionMode = SOFT;
         SelenideLogger.addListener("allure", new AllureSelenide());
         WebSteps steps = new WebSteps();
 
-        steps.openMainPage();
+        steps.openMainPageWithChecking();
         steps.chooseParcelInPopupMenuSending();
 
         steps.checkRedirectedToShipmentsPage();

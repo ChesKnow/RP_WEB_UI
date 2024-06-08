@@ -3,6 +3,7 @@ package tests.ui;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import org.junit.jupiter.api.Assertions;
+import org.openqa.selenium.Keys;
 
 import java.time.Duration;
 
@@ -15,8 +16,9 @@ import static com.codeborne.selenide.WebDriverConditions.url;
 public class WebSteps {
 
     @Step("Пользователь заходит на главную страницу pochta.ru")
-    public void openMainPage() {
+    public void openMainPageWithChecking() {
         open("");
+        webdriver().shouldHave(url("https://www.pochta.ru/"));
     }
 
     @Step("Наводит мышку на заголовок Отправить и в выпадающем меню выбирает Посылку")
@@ -98,4 +100,15 @@ public class WebSteps {
         String insurance_added_value = $("[data-testid='parcels.ticket-extra-expand']").sibling(0).$("span").getValue();
     }
 
+    @Step("Выбирает Подписаться на журнал в меню Онлайн-услуги")
+    public void chooseSubscribeToMagazineInPopupMenu() {
+        $$("[data-submenu=submenu]").findBy(text("Онлайн-сервисы")).hover();
+        $(byTagAndText("span", "Подписаться на газету или журнал")).click();
+        switchTo().window(1);
+        actions().sendKeys(Keys.ESCAPE);
+        //sleep(5000);
+        //switchTo().frame(1);
+        //$(byTagAndText("span", "Да, этой мой город")).click();
+
+    }
 }

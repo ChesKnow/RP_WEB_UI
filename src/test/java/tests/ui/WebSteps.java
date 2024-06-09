@@ -105,8 +105,9 @@ public class WebSteps {
         $$("[data-submenu=submenu]").findBy(text("Онлайн-сервисы")).hover();
         $(byTagAndText("span", "Подписаться на газету или журнал")).click();
         switchTo().window(1);
-        actions().sendKeys(Keys.ESCAPE);
         //sleep(5000);
+        actions().sendKeys(Keys.ESCAPE);
+
         //switchTo().frame(1);
         //$(byTagAndText("span", "Да, этой мой город")).click();
 

@@ -6,6 +6,7 @@ import io.qameta.allure.*;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import pages.LoginPage;
 import pages.PodpiskaPage;
 
 import static com.codeborne.selenide.Selenide.open;
@@ -24,6 +25,7 @@ public class PodpiskaTests extends TestBase {
         SelenideLogger.addListener("allure", new AllureSelenide());
         PodpiskaPage podpiskaPage = new PodpiskaPage();
         WebSteps webSteps = new WebSteps();
+        LoginPage loginPage = new LoginPage();
 
 
         webSteps.openMainPageWithChecking();
@@ -40,7 +42,7 @@ public class PodpiskaTests extends TestBase {
         podpiskaPage.customerRemindAndAddNovemberMonth();
         podpiskaPage.checkAddresseeAndAmountIsCorrect("Наука и жизнь", "Чесанов Роман Владимирович", "141301, Московская обл, Сергиев Посад, Матросова ул, 7, кв 1", "2024: Сентябрь, Ноябрь", "1007,36 ₽");
         podpiskaPage.customerStartBuyProcess();
-        webSteps.enterCredentials();
+        loginPage.enterUserCredentials("roman.chesanov@russianpost.ru", "Pochtalion*23");
 
 
         podpiskaPage.customerDeleteGoodsFromCart();

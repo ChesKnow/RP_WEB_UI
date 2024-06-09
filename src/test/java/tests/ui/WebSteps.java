@@ -7,6 +7,7 @@ import org.openqa.selenium.Keys;
 
 import java.time.Duration;
 
+import static com.codeborne.selenide.CollectionCondition.texts;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.*;
@@ -112,4 +113,11 @@ public class WebSteps {
         //$(byTagAndText("span", "Да, этой мой город")).click();
 
     }
+
+    @Step("Смотрит варианты сроков доставки")
+    public void checkDeliveryTerms() {
+        $$("[data-testid='parcels.delivery-type-time']").shouldHave(texts("2 дня", "1–2 дня", "1 день"));
+    }
+
+
 }

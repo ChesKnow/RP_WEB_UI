@@ -12,6 +12,7 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byTagAndText;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.WebDriverConditions.url;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ShipmentsPage extends TestBase {
 
@@ -21,18 +22,22 @@ public class ShipmentsPage extends TestBase {
     }
 
     @Step("Заполнеяет минимально необходимые поля для посылки обычновенной")
-    public void fillMinimumRequiredFieldsForParcel() {
-        $("#addressFrom").setValue("г Москва Варшавское шоссе 37");
+    public void fillMinimumRequiredFieldsForParcel(String address_from, String address_to, String weight) {
+        $("#addressFrom").setValue(address_from);
         actions().click();
         $(byTagAndText("span", "115127")).shouldBe(visible, Duration.ofSeconds(3)).click();
-        $("#addressTo").setValue("Сергиев Посад Матросова 7");
+        $("#addressTo").setValue(address_to);
         $(byTagAndText("span", "141301")).click();
-        $("#weight").setValue("1");
+        $("#weight").setValue(weight);
         $(byTagAndText("span", "1 кг")).click();
-        //data-testid="shipment.dimensions-tabs"
         $("[data-testid=dimension-typical]").click();
         $("[data-testid=dimension-typical-size-m]").click();
         $("[type=submit]").click();
+
+        assertThat($("#addressFrom").getText()).isEqualTo(address_from);
+        assertThat($("#addressTo").getText()).isEqualTo(address_to);
+        assertThat($("#weight").getValue()).isEqualTo(weight);
+
     }
 
     @Step("Выбрать вид пересылки Ускоренный")
@@ -42,59 +47,72 @@ public class ShipmentsPage extends TestBase {
 
     @Step("Сверяем что сумма тарифа у выбранного типа пересылки соответствует сумме в виджете Оформления")
     public void checkTarifValueCorrespondtoForwardingTypeAndConfirm() {
-        String value1 = $("[data-testid='parcels.delivery-type-price']").$("span").getValue();
-        String value2 = $("[data-testid='parcels.ticket-item']").$("span").getValue();
+        String value1 = $("[data-testid='parcels.delivery-type-price']").$("span").
+                getValue();
+        String value2 = $("[data-testid='parcels.ticket-item']").$("span").
+                getValue();
         Assertions.assertEquals(value2, value1);
         $("#validateButton").click();
     }
 
     @Step("Смотрит варианты сроков доставки")
     public void checkDeliveryTerms() {
-        $$("[data-testid='parcels.delivery-type-time']").shouldHave(texts("2 дня", "1–2 дня", "1 день"));
+        $$("[data-testid='parcels.delivery-type-time']").
+                shouldHave(texts("2 дня", "1–2 дня", "1 день"));
     }
 
     @Step("Отображается предупреждение об условиях приема к пересылке")
     public void canSeeWarningRegardingAcceptanceCondition() {
-        $("[data-component='NotificationWrapper']").$("div", 1).shouldBe(visible);
+        $("[data-component='NotificationWrapper']").$("div", 1).
+                shouldBe(visible);
     }
 
     @Step("Ниже вариантов доставки отображается строчка об особенностях сроков доставки")
     public void canSeeWarningRegardingDeliveryTerms() {
-        $$("#shipment-sidebar").findBy(text("Сроки доставки указаны без учёта дня приёма, а также не включают выходные и праздничные дни.")).shouldBe(visible);
+        $$("#shipment-sidebar")
+                .findBy(text("Сроки доставки указаны без учёта дня приёма, а также не включают выходные и праздничные дни."))
+                .shouldBe(visible);
     }
 
     @Step("Проверяем правильность введенных параметров посылки")
-    public void checkCorrectnessOfPacelFields() {
+    public void checkCorrectnessOfPacelFields(String address_from, String address_to) {
         $("#shipment-sidebar span").shouldHave(text("Москва — Сергиев Посад."));
-        //Assertions.assertEquals("Москва — Сергиев Посад.", value1);
         $("h2").parent().$("div", 1).shouldHave(text("Ускоренный, до 1–2 дней"));
-        //Assertions.assertEquals("Ускоренный, до 1–2 дней. От пункта отправки до пункта выдачи", value2);
-        $("#senderAddress").shouldHave(text("г Москва, ш Варшавское, д. 37"));
-        $("#recipientAddress").shouldHave(text("обл Московская, г Сергиев Посад, ул Матросова, д. 7"));
+        $("#senderAddress").shouldHave(text(address_from));
+        $("#recipientAddress").shouldHave(text(address_to));
 
     }
 
     @Step("Заполняет ФИО получателя")
     public void fillAddresseeName() {
         $("#recipientName").setValue("Иванов Иван Иванович").pressEscape();
+        assertThat($("#recipientName").getValue()).isEqualTo("Иванов Иван Иванович");
     }
 
     @Step("Выбирает вариант ценной посылки и указывает ценность")
     public void chooseCheckboxValuedParcel() {
         $(byTagAndText("span", "Ценная посылка")).click();
         $("#insuranceSum").setValue("100");
+
+        assertThat($("#insuranceSum").getValue()).isEqualTo("100");
     }
 
     @Step("Выбирает способ оплаты В отделении")
     public void choosePaymentMethod() {
         $("[data-testid='payment-method-select-formless'").click();
+        $("[data-testid='parcels.ticket-submit-button-desktop']").$("span").
+            shouldHave(text("Получить трек-номер"));
     }
 
     @Step("Проверяем что сумма Итого верна")
     public void checkTotalValueAmount() {
-        String totalValue = $(byTagAndText("div", "Итого")).sibling(0).$("div").getValue();
-        String tarif_type_value = $(byTagAndText("div", "Ускоренный тариф")).sibling(0).getValue();
-        String insurance_added_value = $("[data-testid='parcels.ticket-extra-expand']").sibling(0).$("span").getValue();
+        sleep(2000);
+        assertThat($(byTagAndText("div", "Итого")).sibling(0).$("div").getText()).
+                isEqualTo("315,60 ₽");
+        assertThat($(byTagAndText("div", "Ускоренный тариф")).sibling(0).getText())
+                .isEqualTo("312,00 ₽");
+        assertThat($("[data-testid='parcels.ticket-extra-expand']").sibling(0).$("span").getText())
+                .isEqualTo("3,60 ₽");
     }
 
 }

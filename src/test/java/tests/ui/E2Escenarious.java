@@ -22,6 +22,9 @@ public class E2Escenarious extends TestBase{
             fio = "Чесанов Роман Владимирович",
             magazine_title = "Юность",
             address = "Сергиев Посад Матросова 7 1",
+            address_to = "обл Московская, г Сергиев Посад, ул Матросова, д. 7, кв. 1",
+            address_from = "г Москва, ш Варшавское, д. 37",
+            weight = "1 кг",
             full_address = "141301, Московская обл, Сергиев Посад, Матросова ул, 7, кв 1",
             amount = "371,95 ₽",
             full_amount = "2231,70 ₽",
@@ -48,13 +51,13 @@ public class E2Escenarious extends TestBase{
         SupportPage supportPage = new SupportPage();
         ShipmentsPage shipmentsPage = new ShipmentsPage();
 
-        mainPage.openMainPageAndCheckTitle();
+        mainPage.openMainPageWithChecking();
         mainPage.startSearchOnSite();
         mainPage.enterSearchData("Сроки");
         mainPage.chooseSearchDataInSearchResults("Сроки доставки");
         supportPage.scrollToTheBottomAndClickToTheLink("Контрольные сроки доставки посылок до 13.06.2024");
         supportPage.chooseParcelDeliveryTerms();
-        shipmentsPage.fillMinimumRequiredFieldsForParcel();
+        shipmentsPage.fillMinimumRequiredFieldsForParcel(address_from, address_to, weight);
         shipmentsPage.checkDeliveryTerms();
         shipmentsPage.canSeeWarningRegardingAcceptanceCondition();
         shipmentsPage.canSeeWarningRegardingDeliveryTerms();
@@ -74,7 +77,7 @@ public class E2Escenarious extends TestBase{
         * */
     }
 
-
+@Test
     @Feature("Отправка посылок онлайн")
     @Story("Создать отправку посылки онлайн")
     @DisplayName("Авторизованный Пользователь может создать отправку посылки онлайн по тарифу ускоренный")
@@ -82,7 +85,6 @@ public class E2Escenarious extends TestBase{
     @Severity(SeverityLevel.CRITICAL)
     @Tag("positive")
     @Tag("regress")
-    @RepeatedTest(3)
     void authorizedUserCanCreateNewParcelSending() {
         Configuration.assertionMode = SOFT;
         SelenideLogger.addListener("allure", new AllureSelenide());
@@ -94,14 +96,14 @@ public class E2Escenarious extends TestBase{
         mainPage.chooseParcelInPopupMenuSending();
 
         shipmentsPage.checkRedirectedToShipmentsPage();
-        shipmentsPage.fillMinimumRequiredFieldsForParcel();
+        shipmentsPage.fillMinimumRequiredFieldsForParcel(address_from, address_to, weight);
         shipmentsPage.setForwardingType();
         shipmentsPage.checkTarifValueCorrespondtoForwardingTypeAndConfirm();
 
         loginPage.enterCredentialsWithSubmit();
 
         shipmentsPage.checkRedirectedToShipmentsPage();
-        shipmentsPage.checkCorrectnessOfPacelFields();
+        shipmentsPage.checkCorrectnessOfPacelFields(address_from, address_to);
         shipmentsPage.fillAddresseeName();
         shipmentsPage.chooseCheckboxValuedParcel();
         shipmentsPage.choosePaymentMethod();

@@ -29,40 +29,20 @@ import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.WebDriverConditions.url;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MainPage {
     //locators
     private final SelenideElement
-            title = $("#__next"),
-            trackingbar = $("#barcode"),
-            loop = $("[aria-label='Отследить']");
+            title = $("#__next");
+
 
     //actions
     @Step("Открываем главную страницу")
     public void openMainPageAndCheckTitle() {
         open("");
-        title.shouldHave(text("Почта России"));
+        assertThat(title.getText()).isEqualTo("Почта России");
     }
-    @Step("Открываем главную страницу и проверяем трекер через Enter")
-    public void trackingByPressEnter(String barcode) {
-        open("");
-        trackingbar.setValue(barcode).pressEnter();
-        $("#page-tracking").shouldHave(text(barcode));
-    }
-    @Step("Открываем главную страницу и проверяем трекер через лупу")
-    public void trackingByClickOnLoop(String barcode) {
-        open("");
-        trackingbar.setValue(barcode);
-        loop.click();
-        $("#page-tracking").shouldHave(text(barcode));
-    }
-    @Step("Открываем главную страницу и вводим неверный ШПИ - отслеживание не происходит")
-    public void trackingNotStartingTest(String barcode) {
-        open("");
-        trackingbar.setValue(barcode).pressEnter();
-        title.shouldHave(text("Почта России"));
-    }
-
 
     static Stream<Arguments> mainPageShouldContainsAllOfStandardSections() {
         return Stream.of(
@@ -70,6 +50,7 @@ public class MainPage {
 
         );
     }
+
     @MethodSource()
     @ParameterizedTest
     @Tag("WEB")
@@ -81,10 +62,6 @@ public class MainPage {
 
     }
 
-    @Attachment(value = "Screenshot", type = "image/png", fileExtension = "png")
-    public byte[] takeScreenshot() {
-        return ((TakesScreenshot) WebDriverRunner.getWebDriver()).getScreenshotAs(OutputType.BYTES);
-    }
 
     @Step("Пользователь заходит на главную страницу pochta.ru")
     public void openMainPageWithChecking() {
@@ -95,11 +72,15 @@ public class MainPage {
     @Step("Нажимает на лупу в верхнем углу экрана для поиска по сайту")
     public void startSearchOnSite() {
         $("[data-testid=search-toggle-button]").click();
+        $("[placeholder='Поиск по сайту']").shouldBe(visible);
+
     }
 
     @Step("Вводит данные для поиска")
     public void enterSearchData(String search_data) {
-        $("[placeholder='Поиск по сайту']").setValue(search_data).pressEnter();
+        $("[placeholder='Поиск по сайту']").setValue(search_data);
+        assertThat($("[placeholder='Поиск по сайту']").getValue()).isEqualTo(search_data);
+        $("[placeholder='Поиск по сайту']").pressEnter();
     }
 
     @Step("Выбирает в результатах поиска ссылку Сроки доставки")
@@ -121,17 +102,19 @@ public class MainPage {
         $$("[data-submenu=submenu]").findBy(text("Онлайн-сервисы")).hover();
         $(byTagAndText("span", "Подписаться на газету или журнал")).click();
         switchTo().window(1);
-        //sleep(5000);
+
         actions().sendKeys(Keys.ESCAPE);
 
-        //switchTo().frame(1);
-        //$(byTagAndText("span", "Да, этой мой город")).click();
+        assertThat($("[class*='HeaderSiteTitle']").getText()).
+                isEqualTo("Подписка на издания");
 
     }
 
     @Step("Наводит мышку на заголовок Отправить и в выпадающем меню выбирает Посылку")
     public void chooseParcelInPopupMenuSending() {
         $$("[data-submenu=submenu]").findBy(text("Отправить")).hover();
+        $("[data-testid='submenu']").shouldBe(visible);
+
         $(byTagAndText("span", "Посылку")).click();
     }
 

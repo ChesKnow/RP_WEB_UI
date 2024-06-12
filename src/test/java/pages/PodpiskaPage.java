@@ -12,6 +12,7 @@ import static com.codeborne.selenide.WebDriverConditions.url;
 public class PodpiskaPage {
 
 
+
     public PodpiskaPage openPodpiskaPage() {
         open("https://podpiska.pochta.ru/");
         return this;
@@ -20,14 +21,16 @@ public class PodpiskaPage {
 
     @Step("Вводит полное наименование журнала")
     public void searchToMagazineByFullTitle(String magazine_title) {
+        sleep(3000);
+        actions().sendKeys(Keys.ESCAPE).perform();
 
         $("[name='query']").setValue(magazine_title).pressEnter();
-        Assertions.assertEquals("Результаты по запросу «Наука и жизнь» 1 результат", $("h1").getText());
+        Assertions.assertEquals("Результаты по запросу «Юность» 3 результата", $("h1").getText());
     }
 
     @Step("Выбирает журнал и переходит к форме заполнения данных")
-    public void confirmChooseExpectedMagazine() {
-        $(byTagAndText("h3", "Наука и жизнь")).click();
+    public void confirmChooseExpectedMagazine(String magazine_title) {
+        $(byTagAndText("h3", magazine_title)).click();
     }
 
     @Step("Заполняет данные получателя, предусловия: для себя и по адресу")
@@ -77,12 +80,12 @@ public class PodpiskaPage {
     }
 
     @Step("Пользователь передумал и меняет данные находясь в корзине")
-    public void customerRemindAndAddNovemberMonth() {
+    public void customerRemindAndAddNovemberMonth(String amount, String new_amount, String short_month) {
         $("[title='Редактировать']").click();
-        $("[class*='PublicationFormFullPriceRegular']").shouldHave(text("503,68 ₽"));
+        $("[class*='PublicationFormFullPriceRegular']").shouldHave(text(amount));
 
-        $(byTagAndText("div", "Ноя")).click();
-        $("[class*='PublicationFormFullPriceRegular']").shouldHave(text("1007,36 ₽"));
+        $(byTagAndText("div", short_month)).click();
+        $("[class*='PublicationFormFullPriceRegular']").shouldHave(text(new_amount));
 
         $("[class*='PublicationFormSubmitButton']").click();
 
@@ -94,9 +97,9 @@ public class PodpiskaPage {
     }
 
     @Step("Пользователь удаляет товар из корзины")
-    public void customerDeleteGoodsFromCart() {
+    public void customerDeleteGoodsFromCart(String no_amount) {
         $("[title='Удалить']").click();
-        $("[class*='CartTotalPrice']").shouldHave(text("0,00 ₽"));
+        $("[class*='CartTotalPrice']").shouldHave(text(no_amount));
     }
 
 }

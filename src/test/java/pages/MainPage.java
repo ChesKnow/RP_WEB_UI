@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 
@@ -85,6 +86,12 @@ public class MainPage {
         return ((TakesScreenshot) WebDriverRunner.getWebDriver()).getScreenshotAs(OutputType.BYTES);
     }
 
+    @Step("Пользователь заходит на главную страницу pochta.ru")
+    public void openMainPageWithChecking() {
+        open("");
+        webdriver().shouldHave(url("https://www.pochta.ru/"));
+    }
+
     @Step("Нажимает на лупу в верхнем углу экрана для поиска по сайту")
     public void startSearchOnSite() {
         $("[data-testid=search-toggle-button]").click();
@@ -101,34 +108,31 @@ public class MainPage {
         webdriver().shouldHave(url("https://www.pochta.ru/support/post-rules/delivery-terms"));
     }
 
-@Step("Прокручивает страницу вниз и скачивает файл по ссылке")
-    public void scrollToTheBottomAndClickToTheLink(String link_name) throws IOException {
 
-    File downloaded = $(byTagAndText("a", link_name)).download();
-    PDF pdf = new PDF(downloaded);
-    Assertions.assertEquals("Боробова Динна Леонидовна", pdf.author);
-
-}
 
 @Step("Возвращается обратно на страницу")
     public void returnBackViaBrowserBackButton() {
         back();
 }
 
-@Step("Нажимает на кнопку Посылки под текстом Рассчитать стоимость доставки")
-    public void chooseParcelDeliveryTerms() {
-        $$("[href='https://www.pochta.ru/parcels']").findBy(visible).click();
-        //switchTo().window(1);
-}
 
-@Step("Отображается предупреждение об условиях приема к пересылке")
-    public void canSeeWarningRegardingAcceptanceCondition() {
-    $("[data-component='NotificationWrapper']").$("div", 1).shouldBe(visible);
-}
+    @Step("Выбирает Подписаться на журнал в меню Онлайн-услуги")
+    public void chooseSubscribeToMagazineInPopupMenu() {
+        $$("[data-submenu=submenu]").findBy(text("Онлайн-сервисы")).hover();
+        $(byTagAndText("span", "Подписаться на газету или журнал")).click();
+        switchTo().window(1);
+        //sleep(5000);
+        actions().sendKeys(Keys.ESCAPE);
 
-@Step("Ниже вариантов доставки отображается строчка об особенностях сроков доставки")
-    public void canSeeWarningRegardingDeliveryTerms() {
-        $$("#shipment-sidebar").findBy(text("Сроки доставки указаны без учёта дня приёма, а также не включают выходные и праздничные дни.")).shouldBe(visible);
-}
+        //switchTo().frame(1);
+        //$(byTagAndText("span", "Да, этой мой город")).click();
+
+    }
+
+    @Step("Наводит мышку на заголовок Отправить и в выпадающем меню выбирает Посылку")
+    public void chooseParcelInPopupMenuSending() {
+        $$("[data-submenu=submenu]").findBy(text("Отправить")).hover();
+        $(byTagAndText("span", "Посылку")).click();
+    }
 
 }

@@ -5,8 +5,7 @@ import com.codeborne.selenide.junit5.SoftAssertsExtension;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.*;
 import io.qameta.allure.selenide.AllureSelenide;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import pages.*;
 
@@ -15,6 +14,7 @@ import java.io.IOException;
 import static com.codeborne.selenide.AssertionMode.SOFT;
 import static com.codeborne.selenide.Selenide.sleep;
 
+@Tag("e2e")
 @ExtendWith(SoftAssertsExtension.class)
 public class E2Escenarious extends TestBase{
 
@@ -38,6 +38,8 @@ public class E2Escenarious extends TestBase{
     @DisplayName("Пользователь может найти сроки доставки через поиск на сайте")
     @Owner("Роман Чесанов (@ChesKnow)")
     @Severity(SeverityLevel.NORMAL)
+    @Tag("positive")
+    @Tag("regress")
     void customerCanFindAndDownloadDeliveryTerms() throws IOException {
 
         Configuration.assertionMode = SOFT;
@@ -72,12 +74,15 @@ public class E2Escenarious extends TestBase{
         * */
     }
 
-    @Test
+
     @Feature("Отправка посылок онлайн")
     @Story("Создать отправку посылки онлайн")
     @DisplayName("Авторизованный Пользователь может создать отправку посылки онлайн по тарифу ускоренный")
     @Owner("Роман Чесанов (@ChesKnow")
     @Severity(SeverityLevel.CRITICAL)
+    @Tag("positive")
+    @Tag("regress")
+    @RepeatedTest(3)
     void authorizedUserCanCreateNewParcelSending() {
         Configuration.assertionMode = SOFT;
         SelenideLogger.addListener("allure", new AllureSelenide());
@@ -110,6 +115,8 @@ public class E2Escenarious extends TestBase{
     @DisplayName("Пользователь может подписаться на журнал на Сентябрь, логин перед покупкой, редакт перед покупкой")
     @Owner("Роман Чесанов (@ChesKnow)")
     @Severity(SeverityLevel.CRITICAL)
+    @Tag("positive")
+    @Tag("regress")
     void authorizedUserCanOfferMagazineForHimselfWithChangesBeforeBuy() {
 
 

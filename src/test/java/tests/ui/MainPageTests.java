@@ -1,30 +1,25 @@
 package tests.ui;
 
+import io.qameta.allure.*;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import pages.MainPage;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Stream;
+
+import static com.codeborne.selenide.CollectionCondition.texts;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.*;
 
 public class MainPageTests extends TestBase {
 
-    MainPage mainPage = new MainPage();
 
-    @Test
-    @DisplayName("Открываем главную страницу")
-    void openMainPageTest() {
-        mainPage.openMainPageAndCheckTitle();
-    }
 
-    @Test
-    @DisplayName("Проверяем трекер отправлений с главной страницы по нажатию Enter")
-    void trackingFromMainPageEnterTest() {
-        mainPage.trackingByPressEnter("RW052656168KZ");
-    }
 
-    @Test
-    @DisplayName("Проверяем трекер отправлений с главной страницы по клику на лупу")
-    void trackingFromMainPageLoopTest() {mainPage.trackingByClickOnLoop("RW052656168KZ");}
-
-    @Test
-    @DisplayName("Проверяем, что трекер не стартует если ввести неправильный ШПИ")
-    void trackingNotStartingTest() {mainPage.trackingNotStartingTest("RW052656168K");}
 }

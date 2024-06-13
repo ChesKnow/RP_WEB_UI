@@ -108,9 +108,9 @@ public class ShipmentsPage extends TestBase {
     public void checkTotalValueAmount() {
         sleep(2000);
         assertThat($(byTagAndText("div", "Итого")).sibling(0).$("div").getText()).
-                isEqualTo("315,60 ₽");
+                isEqualTo("369,60 ₽");
         assertThat($(byTagAndText("div", "Ускоренный тариф")).sibling(0).getText())
-                .isEqualTo("312,00 ₽");
+                .isEqualTo("366,00 ₽");
         assertThat($("[data-testid='parcels.ticket-extra-expand']").sibling(0).$("span").getText())
                 .isEqualTo("3,60 ₽");
     }

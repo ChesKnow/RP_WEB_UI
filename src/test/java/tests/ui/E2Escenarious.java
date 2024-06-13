@@ -16,7 +16,7 @@ import static com.codeborne.selenide.Selenide.sleep;
 
 @Tag("e2e")
 @ExtendWith(SoftAssertsExtension.class)
-public class E2Escenarious extends TestBase{
+public class E2Escenarious extends TestBase {
 
     private final String
             fio = "Чесанов Роман Владимирович",
@@ -62,22 +62,10 @@ public class E2Escenarious extends TestBase{
         shipmentsPage.canSeeWarningRegardingAcceptanceCondition();
         shipmentsPage.canSeeWarningRegardingDeliveryTerms();
 
-        /*
-        step пользователь заходит на сайт pochta.ru +
-        step кликает на значок лупы +
-        step вводит текст для поиска сроки доставки +
-        step в результатах поиска выбирает сроки доставки и переходит на нее +
-        step внизу страницы находит ссылку Документы и нажимает на ссылку Контрольные сроки доставки посылок +
-        step ничего не понимает и возващается обратно на страницу +
-        step выбирает кнопку Посылки под текстом Рассчитать сроки доставки +
-        step заполняет поля +
-        step смотрит сроки доставки +
-        step видит предупреждение об условиях приема +
-        step видит предупреждение о сроках +
-        * */
+
     }
 
-@Test
+    @Test
     @Feature("Отправка посылок онлайн")
     @Story("Создать отправку посылки онлайн")
     @DisplayName("Авторизованный Пользователь может создать отправку посылки онлайн по тарифу ускоренный")
@@ -109,7 +97,7 @@ public class E2Escenarious extends TestBase{
         shipmentsPage.choosePaymentMethod();
         shipmentsPage.checkTotalValueAmount();
 
-        }
+    }
 
     @Test
     @Feature("Оформление подписки на журнал")
@@ -120,7 +108,6 @@ public class E2Escenarious extends TestBase{
     @Tag("positive")
     @Tag("regress")
     void authorizedUserCanOfferMagazineForHimselfWithChangesBeforeBuy() {
-
 
 
         SelenideLogger.addListener("allure", new AllureSelenide());

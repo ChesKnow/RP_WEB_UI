@@ -3,21 +3,19 @@ package pages;
 import io.qameta.allure.Step;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.Keys;
+
+import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byTagAndText;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.WebDriverConditions.url;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PodpiskaPage {
 
 
 
-    public PodpiskaPage openPodpiskaPage() {
-        open("https://podpiska.pochta.ru/");
-        return this;
-
-    }
 
     @Step("Вводит полное наименование журнала")
     public void searchToMagazineByFullTitle(String magazine_title) {
@@ -25,6 +23,7 @@ public class PodpiskaPage {
         actions().sendKeys(Keys.ESCAPE).perform();
 
         $("[name='query']").setValue(magazine_title).pressEnter();
+
         Assertions.assertEquals("Результаты по запросу «Юность» 3 результата", $("h1").getText());
     }
 
@@ -35,10 +34,17 @@ public class PodpiskaPage {
 
     @Step("Заполняет данные получателя, предусловия: для себя и по адресу")
     public void fillRecipientData(String fio, String address) {
-        $("[name='sponsorship']").shouldHave(value("SELF"));
-        $("[name='deliveryType']").shouldHave(value("TO_ADDRESSEE"));
+
         $("[placeholder='ФИО Получателя']").setValue(fio);
         $("[placeholder='Адрес']").setValue(address).press(Keys.ARROW_DOWN).pressEnter();
+
+        assertThat($("[placeholder='ФИО Получателя']").getValue()).isEqualTo(fio);
+        assertThat($("[placeholder='Адрес']").getValue()).isEqualTo(address);
+
+        $("[name='sponsorship']").shouldHave(value("SELF"));
+        $("[name='deliveryType']").shouldHave(value("TO_ADDRESSEE"));
+
+
     }
 
     @Step("Выбирает месяц подписки только Сентябрь")
@@ -48,6 +54,8 @@ public class PodpiskaPage {
         $(byTagAndText("div", "Окт")).click();
         $(byTagAndText("div", "Ноя")).click();
         $(byTagAndText("div", "Дек")).click();
+
+        $$("[data-gtm-form-interact-field-id]").filterBy(hidden).shouldHave(size(5));
     }
 
     @Step("Сверка суммы за месяц, общей суммы за полугодие и итоговрй суммы")
@@ -71,29 +79,28 @@ public class PodpiskaPage {
         Assertions.assertEquals($("[class*='CartItemTitle']").getText(), magazine_title);
         Assertions.assertEquals($$("[class*='CartItemText']").get(3).getText(), fio);
         $$("[class*='CartItemText']").get(2).shouldHave(text(address));
-        //Assertions.assertTrue($$("[class*='CartItemTitle']").get(2).getText().contains(address));
         $$("[class*='CartItemText']").get(0).shouldHave(text(month));
-        //Assertions.assertTrue($$("[class*='CartItemTitle']").get(0).getText(), contains(month));
-
         Assertions.assertEquals($("[class*='CartItemPrice']").getText(), amount);
-        Assertions.assertEquals($("[class*='CartItemPrice']").getText(), $("[class*='CartTotalPrice']").getText());
+        Assertions.assertEquals($("[class*='CartItemPrice']").getText(),
+                $("[class*='CartTotalPrice']").getText());
     }
 
     @Step("Пользователь передумал и меняет данные находясь в корзине")
     public void customerRemindAndAddNovemberMonth(String amount, String new_amount, String short_month) {
         $("[title='Редактировать']").click();
+        $("h2[class*='PopupHeader']").shouldHave(text("Редактирование"));
         $("[class*='PublicationFormFullPriceRegular']").shouldHave(text(amount));
-
         $(byTagAndText("div", short_month)).click();
         $("[class*='PublicationFormFullPriceRegular']").shouldHave(text(new_amount));
-
         $("[class*='PublicationFormSubmitButton']").click();
+        $("h1").shouldHave(text("Корзина"));
 
     }
 
-    @Step("Нажимает кнопку Оплатить(переход к авторизации")
+    @Step("Нажимает кнопку Оплатить(происходит переход к авторизации)")
     public void customerStartBuyProcess() {
         $(byTagAndText("span", "Оплатить")).click();
+        $("h2").shouldHave(text("Вход с Почта ID"));
     }
 
     @Step("Пользователь удаляет товар из корзины")

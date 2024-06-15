@@ -53,3 +53,9 @@ test {
     useJUnitPlatform()
     systemProperties(System.getProperties())
 }
+
+task e2e_tests(type: Test) {
+    useJUnitPlatform{
+        includeTags("e2e")
+    }
+}

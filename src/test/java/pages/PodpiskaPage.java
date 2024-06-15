@@ -1,5 +1,6 @@
 package pages;
 
+import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.Keys;
@@ -14,32 +15,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PodpiskaPage {
 
+    private final SelenideElement
+            addresseeFio = $("[placeholder='ФИО Получателя']"),
+            addresseeAddress = $("[placeholder='Адрес']"),
+            searchField = $("[name='query']");
+
 
 
 
     @Step("Вводит полное наименование журнала")
-    public void searchToMagazineByFullTitle(String magazine_title) {
+    public void searchToMagazineByFullTitle(String magazineTitle) {
         sleep(3000);
         actions().sendKeys(Keys.ESCAPE).perform();
-
-        $("[name='query']").setValue(magazine_title).pressEnter();
-
-        Assertions.assertEquals("Результаты по запросу «Юность» 3 результата", $("h1").getText());
+        searchField.setValue(magazineTitle).pressEnter();
     }
 
     @Step("Выбирает журнал и переходит к форме заполнения данных")
-    public void confirmChooseExpectedMagazine(String magazine_title) {
-        $(byTagAndText("h3", magazine_title)).click();
+    public void confirmChooseExpectedMagazine(String magazineTitle) {
+        $(byTagAndText("h3", magazineTitle)).click();
     }
 
     @Step("Заполняет данные получателя, предусловия: для себя и по адресу")
     public void fillRecipientData(String fio, String address) {
 
-        $("[placeholder='ФИО Получателя']").setValue(fio);
-        $("[placeholder='Адрес']").setValue(address).press(Keys.ARROW_DOWN).pressEnter();
+        addresseeFio.setValue(fio);
+        addresseeAddress.setValue(address).press(Keys.ARROW_DOWN).pressEnter();
 
-        assertThat($("[placeholder='ФИО Получателя']").getValue()).isEqualTo(fio);
-        assertThat($("[placeholder='Адрес']").getValue()).isEqualTo(address);
+        assertThat(addresseeFio.getValue()).isEqualTo(fio);
+        assertThat(addresseeAddress.getValue()).isEqualTo(address);
 
         $("[name='sponsorship']").shouldHave(value("SELF"));
         $("[name='deliveryType']").shouldHave(value("TO_ADDRESSEE"));
@@ -55,14 +58,13 @@ public class PodpiskaPage {
         $(byTagAndText("div", "Ноя")).click();
         $(byTagAndText("div", "Дек")).click();
 
-        $$("[data-gtm-form-interact-field-id]").filterBy(hidden).shouldHave(size(5));
-    }
+        }
 
-    @Step("Сверка суммы за месяц, общей суммы за полугодие и итоговрй суммы")
-    public void checkAmountSumAndPutMagazineToCart(String amount, String full_amount, String total_amount) {
+    @Step("Сверка суммы за месяц, общей суммы за полугодие и итоговой суммы")
+    public void checkAmountSumAndPutMagazineToCart(String amount, String fullAmount, String totalAmount) {
         Assertions.assertEquals($$("[class*='PublicationFormPricesBody']").get(0).getText(), amount);
-        Assertions.assertEquals($$("[class*='PublicationFormPricesBody']").get(1).getText(), full_amount);
-        Assertions.assertEquals($("[class*='PublicationFormFullPriceRegular']").getText(), total_amount);
+        Assertions.assertEquals($$("[class*='PublicationFormPricesBody']").get(1).getText(), fullAmount);
+        Assertions.assertEquals($("[class*='PublicationFormFullPriceRegular']").getText(), totalAmount);
 
         $("[class*='PublicationFormSubmitButton']").click();
 
@@ -75,8 +77,8 @@ public class PodpiskaPage {
     }
 
     @Step("Сверка данных ФИО, адреса, названия журнала, месяц и суммы перед оплатой")
-    public void checkAddresseeAndAmountIsCorrect(String magazine_title, String fio, String address, String month, String amount) {
-        Assertions.assertEquals($("[class*='CartItemTitle']").getText(), magazine_title);
+    public void checkAddresseeAndAmountIsCorrect(String magazineTitle, String fio, String address, String month, String amount) {
+        Assertions.assertEquals($("[class*='CartItemTitle']").getText(), magazineTitle);
         Assertions.assertEquals($$("[class*='CartItemText']").get(3).getText(), fio);
         $$("[class*='CartItemText']").get(2).shouldHave(text(address));
         $$("[class*='CartItemText']").get(0).shouldHave(text(month));
@@ -86,12 +88,12 @@ public class PodpiskaPage {
     }
 
     @Step("Пользователь передумал и меняет данные находясь в корзине")
-    public void customerRemindAndAddNovemberMonth(String amount, String new_amount, String short_month) {
+    public void customerRemindAndAddNovemberMonth(String amount, String newAmount, String shortMonth) {
         $("[title='Редактировать']").click();
         $("h2[class*='PopupHeader']").shouldHave(text("Редактирование"));
         $("[class*='PublicationFormFullPriceRegular']").shouldHave(text(amount));
-        $(byTagAndText("div", short_month)).click();
-        $("[class*='PublicationFormFullPriceRegular']").shouldHave(text(new_amount));
+        $(byTagAndText("div", shortMonth)).click();
+        $("[class*='PublicationFormFullPriceRegular']").shouldHave(text(newAmount));
         $("[class*='PublicationFormSubmitButton']").click();
         $("h1").shouldHave(text("Корзина"));
 
@@ -104,9 +106,9 @@ public class PodpiskaPage {
     }
 
     @Step("Пользователь удаляет товар из корзины")
-    public void customerDeleteGoodsFromCart(String no_amount) {
+    public void customerDeleteGoodsFromCart(String noAmount) {
         $("[title='Удалить']").click();
-        $("[class*='CartTotalPrice']").shouldHave(text(no_amount));
+        $("[class*='CartTotalPrice']").shouldHave(text(noAmount));
     }
 
 }

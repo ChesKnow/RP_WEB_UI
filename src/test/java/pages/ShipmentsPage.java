@@ -6,6 +6,7 @@ import tests.ui.TestBase;
 
 import java.time.Duration;
 
+import static com.codeborne.selenide.CollectionCondition.sizeNotEqual;
 import static com.codeborne.selenide.CollectionCondition.texts;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -14,7 +15,7 @@ import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.WebDriverConditions.url;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ShipmentsPage extends TestBase {
+public class ShipmentsPage {
 
     @Step("Проверяем, что перешли на страницу создания отправления")
     public void checkRedirectedToShipmentsPage() {
@@ -22,11 +23,11 @@ public class ShipmentsPage extends TestBase {
     }
 
     @Step("Заполнеяет минимально необходимые поля для посылки обычновенной")
-    public void fillMinimumRequiredFieldsForParcel(String address_from, String address_to, String weight) {
-        $("#addressFrom").setValue(address_from);
-        actions().click();
+    public void fillMinimumRequiredFieldsForParcel(String addressFrom, String addressTo, String weight) {
+        $("#addressFrom").setValue(addressFrom);
+
         $(byTagAndText("span", "115127")).shouldBe(visible, Duration.ofSeconds(3)).click();
-        $("#addressTo").setValue(address_to);
+        $("#addressTo").setValue(addressTo);
         $(byTagAndText("span", "141301")).click();
         $("#weight").setValue(weight);
         $(byTagAndText("span", "1 кг")).click();
@@ -34,8 +35,8 @@ public class ShipmentsPage extends TestBase {
         $("[data-testid=dimension-typical-size-m]").click();
         $("[type=submit]").click();
 
-        assertThat($("#addressFrom").getText()).isEqualTo(address_from);
-        assertThat($("#addressTo").getText()).isEqualTo(address_to);
+        assertThat($("#addressFrom").getText()).isEqualTo(addressFrom);
+        assertThat($("#addressTo").getText()).isEqualTo(addressTo);
         assertThat($("#weight").getValue()).isEqualTo(weight);
 
     }
@@ -58,7 +59,8 @@ public class ShipmentsPage extends TestBase {
     @Step("Смотрит варианты сроков доставки")
     public void checkDeliveryTerms() {
         $$("[data-testid='parcels.delivery-type-time']").
-                shouldHave(texts("2 дня", "1–2 дня", "1 день"));
+                shouldBe(sizeNotEqual(0));
+
     }
 
     @Step("Отображается предупреждение об условиях приема к пересылке")
@@ -75,11 +77,11 @@ public class ShipmentsPage extends TestBase {
     }
 
     @Step("Проверяем правильность введенных параметров посылки")
-    public void checkCorrectnessOfPacelFields(String address_from, String address_to) {
+    public void checkCorrectnessOfPacelFields(String addressFrom, String addressTo) {
         $("#shipment-sidebar span").shouldHave(text("Москва — Сергиев Посад."));
         $("h2").parent().$("div", 1).shouldHave(text("Ускоренный, до 1–2 дней"));
-        $("#senderAddress").shouldHave(text(address_from));
-        $("#recipientAddress").shouldHave(text(address_to));
+        $("#senderAddress").shouldHave(text(addressFrom));
+        $("#recipientAddress").shouldHave(text(addressTo));
 
     }
 

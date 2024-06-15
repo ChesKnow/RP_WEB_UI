@@ -1,5 +1,6 @@
 package tests.ui;
 
+import com.codeborne.pdftest.PDF;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.junit5.SoftAssertsExtension;
 import com.codeborne.selenide.logevents.SelenideLogger;
@@ -12,7 +13,7 @@ import pages.*;
 import java.io.IOException;
 
 import static com.codeborne.selenide.AssertionMode.SOFT;
-import static com.codeborne.selenide.Selenide.sleep;
+import static com.codeborne.selenide.Selenide.$;
 
 @Tag("e2e")
 @ExtendWith(SoftAssertsExtension.class)
@@ -20,20 +21,22 @@ public class E2Escenarious extends TestBase {
 
     private final String
             fio = "Чесанов Роман Владимирович",
-            magazine_title = "Юность",
+            magazineTitle = "Юность",
             address = "Сергиев Посад Матросова 7 1",
-            address_to = "обл Московская, г Сергиев Посад, ул Матросова, д. 7, кв. 1",
-            address_from = "г Москва, ш Варшавское, д. 37",
+            addressTo = "обл Московская, г Сергиев Посад, ул Матросова, д. 7, кв. 1",
+            addressFrom = "г Москва, ш Варшавское, д. 37",
             weight = "1 кг",
-            full_address = "141301, Московская обл, Сергиев Посад, Матросова ул, 7, кв 1",
+            fullAddress = "141301, Московская обл, Сергиев Посад, Матросова ул, 7, кв 1",
             amount = "371,95 ₽",
-            full_amount = "2231,70 ₽",
-            total_amount = "371,95 ₽",
-            new_month = "2024: Сентябрь, Ноябрь",
-            new_amount = "743,90 ₽",
+            fullAmount = "2231,70 ₽",
+            totalAmount = "371,95 ₽",
+            newMonth = "2024: Сентябрь, Ноябрь",
+            newAmount = "743,90 ₽",
             month = "2024: Сентябрь",
-            short_month = "Ноя",
-            no_amount = "0,00 ₽";
+            shortMonth = "Ноя",
+            noAmount = "0,00 ₽",
+            searchData = "Сроки";
+
 
     @Test
     @Feature("Поиск информации на сайте")
@@ -45,19 +48,17 @@ public class E2Escenarious extends TestBase {
     @Tag("regress")
     void customerCanFindAndDownloadDeliveryTerms() throws IOException {
 
-        Configuration.assertionMode = SOFT;
 
-        MainPage mainPage = new MainPage();
-        SupportPage supportPage = new SupportPage();
-        ShipmentsPage shipmentsPage = new ShipmentsPage();
 
         mainPage.openMainPageWithChecking();
         mainPage.startSearchOnSite();
-        mainPage.enterSearchData("Сроки");
-        mainPage.chooseSearchDataInSearchResults("Сроки доставки");
-        supportPage.scrollToTheBottomAndClickToTheLink("Контрольные сроки доставки посылок до 13.06.2024");
+        mainPage.enterSearchData(searchData);
+        mainPage.chooseSearchDataInSearchResults();
+
+        supportPage.scrollToTheBottomAndClickToTheLink();
         supportPage.chooseParcelDeliveryTerms();
-        shipmentsPage.fillMinimumRequiredFieldsForParcel(address_from, address_to, weight);
+
+        shipmentsPage.fillMinimumRequiredFieldsForParcel(addressFrom, addressTo, weight);
         shipmentsPage.checkDeliveryTerms();
         shipmentsPage.canSeeWarningRegardingAcceptanceCondition();
         shipmentsPage.canSeeWarningRegardingDeliveryTerms();
@@ -75,23 +76,20 @@ public class E2Escenarious extends TestBase {
     @Tag("regress")
     void authorizedUserCanCreateNewParcelSending() {
         Configuration.assertionMode = SOFT;
-        SelenideLogger.addListener("allure", new AllureSelenide());
-        MainPage mainPage = new MainPage();
-        ShipmentsPage shipmentsPage = new ShipmentsPage();
-        LoginPage loginPage = new LoginPage();
+
 
         mainPage.openMainPageWithChecking();
         mainPage.chooseParcelInPopupMenuSending();
 
         shipmentsPage.checkRedirectedToShipmentsPage();
-        shipmentsPage.fillMinimumRequiredFieldsForParcel(address_from, address_to, weight);
+        shipmentsPage.fillMinimumRequiredFieldsForParcel(addressFrom, addressTo, weight);
         shipmentsPage.setForwardingType();
         shipmentsPage.checkTarifValueCorrespondtoForwardingTypeAndConfirm();
 
         loginPage.enterCredentialsWithSubmit();
 
         shipmentsPage.checkRedirectedToShipmentsPage();
-        shipmentsPage.checkCorrectnessOfPacelFields(address_from, address_to);
+        shipmentsPage.checkCorrectnessOfPacelFields(addressFrom, addressTo);
         shipmentsPage.fillAddresseeName();
         shipmentsPage.chooseCheckboxValuedParcel();
         shipmentsPage.choosePaymentMethod();
@@ -111,28 +109,27 @@ public class E2Escenarious extends TestBase {
 
 
         SelenideLogger.addListener("allure", new AllureSelenide());
-        PodpiskaPage podpiskaPage = new PodpiskaPage();
-        MainPage mainPage = new MainPage();
-        LoginPage loginPage = new LoginPage();
+
 
 
         mainPage.openMainPageWithChecking();
         mainPage.chooseSubscribeToMagazineInPopupMenu();
 
-        podpiskaPage.searchToMagazineByFullTitle(magazine_title);
-        podpiskaPage.confirmChooseExpectedMagazine(magazine_title);
+        podpiskaPage.searchToMagazineByFullTitle(magazineTitle);
+        Assertions.assertEquals("Результаты по запросу «Юность» 3 результата", $("h1").getText());
+        podpiskaPage.confirmChooseExpectedMagazine(magazineTitle);
         podpiskaPage.fillRecipientData(fio, address);
         podpiskaPage.chooseSeptemberMonthOfSubsription();
-        podpiskaPage.checkAmountSumAndPutMagazineToCart(amount, full_amount, total_amount);
+        podpiskaPage.checkAmountSumAndPutMagazineToCart(amount, fullAmount, totalAmount);
         podpiskaPage.redirectToCart();
-        podpiskaPage.checkAddresseeAndAmountIsCorrect(magazine_title, fio, full_address, month, amount);
-        podpiskaPage.customerRemindAndAddNovemberMonth(amount, new_amount, short_month);
-        podpiskaPage.checkAddresseeAndAmountIsCorrect(magazine_title, fio, full_address, new_month, new_amount);
+        podpiskaPage.checkAddresseeAndAmountIsCorrect(magazineTitle, fio, fullAddress, month, amount);
+        podpiskaPage.customerRemindAndAddNovemberMonth(amount, newAmount, shortMonth);
+        podpiskaPage.checkAddresseeAndAmountIsCorrect(magazineTitle, fio, fullAddress, newMonth, newAmount);
         podpiskaPage.customerStartBuyProcess();
 
         loginPage.enterCredentialsWithSubmit();
 
-        podpiskaPage.customerDeleteGoodsFromCart(no_amount);
+        podpiskaPage.customerDeleteGoodsFromCart(noAmount);
 
     }
 

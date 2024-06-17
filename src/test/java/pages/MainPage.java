@@ -4,6 +4,10 @@ import com.codeborne.pdftest.PDF;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebDriverRunner;
+import data.HeaderSections;
+import data.SubmenuSectionSend;
+import data.SubmenuSectionServicesOnline;
+import data.SubmenuSections;
 import io.qameta.allure.Attachment;
 import io.qameta.allure.Step;
 import org.junit.jupiter.api.Assertions;
@@ -44,10 +48,10 @@ public class MainPage {
     @Step("Открываем главную страницу")
     public void openMainPageAndCheckTitle() {
         open("");
-        title.shouldHave(text("Почта России"));
+        title.shouldHave(text(HeaderSections.TITLE.getName()));
     }
 
-    @Step("Пользователь заходит на главную страницу pochta.ru")
+    @Step("Пользователь заходит на главную страницу")
     public void openMainPageWithChecking() {
         open("");
         webdriver().shouldHave(url(url));
@@ -76,8 +80,8 @@ public class MainPage {
 
     @Step("Выбирает Подписаться на журнал в меню Онлайн-услуги")
     public void chooseSubscribeToMagazineInPopupMenu() {
-        $$("[data-submenu=submenu]").findBy(text("Онлайн-сервисы")).hover();
-        $(byTagAndText("span", "Подписаться на газету или журнал")).click();
+        $$("[data-submenu=submenu]").findBy(text(SubmenuSections.SERVICES_ONLINE.getName())).hover();
+        $(byTagAndText("span", SubmenuSectionServicesOnline.SUBSCRIBE_FOR_MAGAZINE.getName())).click();
         switchTo().window(1);
         actions().sendKeys(Keys.ESCAPE);
         $("[class*='HeaderSiteTitle']").shouldHave(text("Подписка на издания"));
@@ -86,9 +90,9 @@ public class MainPage {
 
     @Step("Наводит мышку на заголовок Отправить и в выпадающем меню выбирает Посылку")
     public void chooseParcelInPopupMenuSending() {
-        $$("[data-submenu=submenu]").findBy(text("Отправить")).hover();
+        $$("[data-submenu=submenu]").findBy(text(SubmenuSections.SEND.getName())).hover();
         $("[data-testid='submenu']").shouldBe(visible);
-        $(byTagAndText("span", "Посылку")).click();
+        $(byTagAndText("span", SubmenuSectionSend.PARCEL.getName())).click();
     }
 
 }

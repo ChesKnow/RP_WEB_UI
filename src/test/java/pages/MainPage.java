@@ -1,6 +1,7 @@
 package pages;
 
 import com.codeborne.pdftest.PDF;
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebDriverRunner;
@@ -39,7 +40,11 @@ public class MainPage {
     //locators
     private final SelenideElement
             title = $("#__next"),
-            searchOnSite = $("[placeholder='Поиск по сайту']");
+            searchOnSite = $("[placeholder='Поиск по сайту']"),
+            service = $("[data-testid='submenu']"),
+            headerTitle = $("[class*='HeaderSiteTitle']");
+
+    private final ElementsCollection serviceMenu = $$("[data-submenu=submenu]");
 
     private final String url = "https://www.pochta.ru/";
 
@@ -72,26 +77,26 @@ public class MainPage {
     }
 
     @Step("Выбирает в результатах поиска ссылку Сроки доставки")
-    public void chooseSearchDataInSearchResults() {
-    $("[href='/support/post-rules/delivery-terms']").click();
+    public void chooseSearchDataInSearchResults(String linkToResults) {
+    $("[href="+linkToResults+"]").click();
 
     }
 
 
     @Step("Выбирает Подписаться на журнал в меню Онлайн-услуги")
     public void chooseSubscribeToMagazineInPopupMenu() {
-        $$("[data-submenu=submenu]").findBy(text(SubmenuSections.SERVICES_ONLINE.getName())).hover();
+        serviceMenu.findBy(text(SubmenuSections.SERVICES_ONLINE.getName())).hover();
         $(byTagAndText("span", SubmenuSectionServicesOnline.SUBSCRIBE_FOR_MAGAZINE.getName())).click();
         switchTo().window(1);
         actions().sendKeys(Keys.ESCAPE);
-        $("[class*='HeaderSiteTitle']").shouldHave(text("Подписка на издания"));
+        headerTitle.shouldHave(text(HeaderSections.SUBSCRIBE_FOR_PERIODICAL.getName()));
 
     }
 
     @Step("Наводит мышку на заголовок Отправить и в выпадающем меню выбирает Посылку")
     public void chooseParcelInPopupMenuSending() {
-        $$("[data-submenu=submenu]").findBy(text(SubmenuSections.SEND.getName())).hover();
-        $("[data-testid='submenu']").shouldBe(visible);
+        serviceMenu.findBy(text(SubmenuSections.SEND.getName())).hover();
+        service.shouldBe(visible);
         $(byTagAndText("span", SubmenuSectionSend.PARCEL.getName())).click();
     }
 

@@ -7,7 +7,8 @@ public enum HeaderSections {
     PHYSICAL_PERSONAL("Частным лицам"),
     OFFICES("Отделения"),
     HELP("Помощь"),
-    SIGN_IN("Войти");
+    SIGN_IN("Войти"),
+    SUBSCRIBE_FOR_PERIODICAL("Подписка на издания");
 
     private String name;
 

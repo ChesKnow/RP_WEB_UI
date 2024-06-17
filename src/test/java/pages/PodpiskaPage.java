@@ -1,6 +1,8 @@
 package pages;
 
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import data.ShortMonthsNames;
 import io.qameta.allure.Step;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.Keys;
@@ -18,7 +20,18 @@ public class PodpiskaPage {
     private final SelenideElement
             addresseeFio = $("[placeholder='ФИО Получателя']"),
             addresseeAddress = $("[placeholder='Адрес']"),
-            searchField = $("[name='query']");
+            searchField = $("[name='query']"),
+            magazineFullPrice = $("[class*='PublicationFormFullPriceRegular']"),
+            buyButton = $("[class*='PublicationFormSubmitButton']"),
+            cartItemName = $("[class*='CartItemTitle']"),
+            cartItemPrice = $("[class*='CartItemPrice']"),
+            cartItemTotalPrice = $("[class*='CartTotalPrice']"),
+            makeChanges = $("[title='Редактировать']"),
+            fullPrice = $("[class*='PublicationFormFullPriceRegular']");
+
+    private final ElementsCollection
+            publicationForm = $$("[class*='PublicationFormPricesBody']"),
+            cartItemsFields = $$("[class*='CartItemText']");
 
 
 
@@ -51,23 +64,32 @@ public class PodpiskaPage {
     }
 
     @Step("Выбирает месяц подписки только Сентябрь")
-    public void chooseSeptemberMonthOfSubsription() { //todo switchcasedepent on month choosen
-        $(byTagAndText("div", "Июл")).click();
-        $(byTagAndText("div", "Авг")).click();
-        $(byTagAndText("div", "Окт")).click();
-        $(byTagAndText("div", "Ноя")).click();
-        $(byTagAndText("div", "Дек")).click();
+    public void chooseSeptemberMonthOfSubsription(String month) {
+        //todo switchcasedepent on month choosen
+        for (ShortMonthsNames i : ShortMonthsNames.values()) {
+            if (!i.getName().equalsIgnoreCase(month)) {
 
+        $(byTagAndText("div", i.getName())).click();
+//        $(byTagAndText("div", "Авг")).click();
+//        $(byTagAndText("div", "Окт")).click();
+//        $(byTagAndText("div", "Ноя")).click();
+//        $(byTagAndText("div", "Дек")).click();
+            }
         }
+    }
 
     @Step("Сверка суммы за месяц, общей суммы за полугодие и итоговой суммы")
     public void checkAmountSumAndPutMagazineToCart(String amount, String fullAmount, String totalAmount) {
-        Assertions.assertEquals($$("[class*='PublicationFormPricesBody']").get(0).getText(), amount);
-        Assertions.assertEquals($$("[class*='PublicationFormPricesBody']").get(1).getText(), fullAmount);
-        Assertions.assertEquals($("[class*='PublicationFormFullPriceRegular']").getText(), totalAmount);
 
-        $("[class*='PublicationFormSubmitButton']").click();
+        Assertions.assertEquals(publicationForm.get(0).getText(), amount);
+        Assertions.assertEquals(publicationForm.get(1).getText(), fullAmount);
+        Assertions.assertEquals(magazineFullPrice.getText(), totalAmount);
 
+    }
+
+    @Step("Нажимает кнопку купить")
+    public void buyGoods() {
+        buyButton.click();
     }
 
     @Step("Переходит в корзину")
@@ -78,23 +100,28 @@ public class PodpiskaPage {
 
     @Step("Сверка данных ФИО, адреса, названия журнала, месяц и суммы перед оплатой")
     public void checkAddresseeAndAmountIsCorrect(String magazineTitle, String fio, String address, String month, String amount) {
-        Assertions.assertEquals($("[class*='CartItemTitle']").getText(), magazineTitle);
-        Assertions.assertEquals($$("[class*='CartItemText']").get(3).getText(), fio);
-        $$("[class*='CartItemText']").get(2).shouldHave(text(address));
-        $$("[class*='CartItemText']").get(0).shouldHave(text(month));
-        Assertions.assertEquals($("[class*='CartItemPrice']").getText(), amount);
-        Assertions.assertEquals($("[class*='CartItemPrice']").getText(),
-                $("[class*='CartTotalPrice']").getText());
+
+        Assertions.assertEquals(cartItemName.getText(), magazineTitle);
+        Assertions.assertEquals(cartItemsFields.get(3).getText(), fio);
+
+        cartItemsFields.get(2).shouldHave(text(address));
+        cartItemsFields.get(0).shouldHave(text(month));
+
+        Assertions.assertEquals(cartItemPrice.getText(), amount);
+        Assertions.assertEquals(cartItemPrice.getText(), cartItemTotalPrice.getText());
     }
 
     @Step("Пользователь передумал и меняет данные находясь в корзине")
     public void customerRemindAndAddNovemberMonth(String amount, String newAmount, String shortMonth) {
-        $("[title='Редактировать']").click();
+
+        makeChanges.click();
         $("h2[class*='PopupHeader']").shouldHave(text("Редактирование"));
-        $("[class*='PublicationFormFullPriceRegular']").shouldHave(text(amount));
+
+        fullPrice.shouldHave(text(amount));
         $(byTagAndText("div", shortMonth)).click();
-        $("[class*='PublicationFormFullPriceRegular']").shouldHave(text(newAmount));
-        $("[class*='PublicationFormSubmitButton']").click();
+        fullPrice.shouldHave(text(newAmount));
+        final SelenideElement acceptChanges = $("[class*='PublicationFormSubmitButton']");
+        acceptChanges.click();
         $("h1").shouldHave(text("Корзина"));
 
     }

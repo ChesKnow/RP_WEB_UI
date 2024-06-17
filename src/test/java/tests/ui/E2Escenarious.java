@@ -53,7 +53,7 @@ public class E2Escenarious extends TestBase {
         mainPage.openMainPageWithChecking();
         mainPage.startSearchOnSite();
         mainPage.enterSearchData(searchData);
-        mainPage.chooseSearchDataInSearchResults();
+        mainPage.chooseSearchDataInSearchResults("/support/post-rules/delivery-terms");
 
         supportPage.scrollToTheBottomAndClickToTheLink();
         supportPage.chooseParcelDeliveryTerms();
@@ -119,8 +119,9 @@ public class E2Escenarious extends TestBase {
         Assertions.assertEquals("Результаты по запросу «Юность» 3 результата", $("h1").getText());
         podpiskaPage.confirmChooseExpectedMagazine(magazineTitle);
         podpiskaPage.fillRecipientData(fio, address);
-        podpiskaPage.chooseSeptemberMonthOfSubsription();
+        podpiskaPage.chooseSeptemberMonthOfSubsription("Сен");
         podpiskaPage.checkAmountSumAndPutMagazineToCart(amount, fullAmount, totalAmount);
+        podpiskaPage.buyGoods();
         podpiskaPage.redirectToCart();
         podpiskaPage.checkAddresseeAndAmountIsCorrect(magazineTitle, fio, fullAddress, month, amount);
         podpiskaPage.customerRemindAndAddNovemberMonth(amount, newAmount, shortMonth);

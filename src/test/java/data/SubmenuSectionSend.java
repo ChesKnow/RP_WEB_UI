@@ -2,7 +2,7 @@ package data;
 
 public enum SubmenuSectionSend {
     LETTER("Письмо"),
-    PARCEL("посылку"),
+    PARCEL("Посылку"),
     POSTCARD("Открытку");
 
     private String name;

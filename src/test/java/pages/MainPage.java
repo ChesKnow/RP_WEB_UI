@@ -14,6 +14,7 @@ import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byTagAndText;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.WebDriverConditions.url;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MainPage {
@@ -29,23 +30,26 @@ public class MainPage {
 
 
     @Step("Пользователь заходит на главную страницу")
-    public void openMainPage() {
+    public MainPage openMainPage() {
         open("");
         title.shouldHave(text(HeaderSections.TITLE.getName()));
+        return this;
     }
 
     @Step("Нажимает на лупу в верхнем углу экрана для поиска по сайту")
-    public void startSearchOnSite() {
+    public MainPage startSearchOnSite() {
         searchButton.click();
         searchOnSite.shouldBe(visible);
+        return this;
 
     }
 
     @Step("Вводит данные для поиска")
-    public void enterSearchData(String searchData) {
+    public MainPage enterSearchData(String searchData) {
         searchOnSite.setValue(searchData);
         searchOnSite.shouldHave(value(searchData));
         searchOnSite.pressEnter();
+        return this;
     }
 
     @Step("Выбирает в результатах поиска ссылку Сроки доставки")
@@ -66,10 +70,11 @@ public class MainPage {
     }
 
     @Step("Наводит мышку на заголовок Отправить и в выпадающем меню выбирает Посылку")
-    public void chooseParcelInPopupMenuSending() {
+    public void chooseParcelInPopupMenuSending(String parcelUrl) {
         serviceMenu.findBy(text(SubmenuSections.SEND.getName())).hover();
         service.shouldBe(visible);
         $(byTagAndText("span", SubmenuSectionSend.PARCEL.getName())).click();
+        webdriver().shouldHave(url(parcelUrl));
     }
 
 }

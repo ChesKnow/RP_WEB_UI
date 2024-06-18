@@ -1,15 +1,14 @@
 package pages;
 
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
-import org.junit.jupiter.api.Assertions;
-import tests.ui.TestBase;
+import org.openqa.selenium.Keys;
 
 import java.time.Duration;
 
-import static com.codeborne.selenide.CollectionCondition.sizeNotEqual;
 import static com.codeborne.selenide.CollectionCondition.texts;
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byTagAndText;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.WebDriverConditions.url;
@@ -17,104 +16,149 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ShipmentsPage {
 
+    private final SelenideElement
+            setRecipientAddress = $("#addressTo"),
+            setSenderAddress = $("#addressFrom"),
+            setWeight = $("#weight"),
+            dimensionStandardMenu = $("[data-testid=dimension-typical]"),
+            dimensionSizeM = $("[data-testid=dimension-typical-size-m]"),
+            dimensionSizeSubmit = $("[type=submit]"),
+            setDimention = $("[data-testid='dimension-select']"),
+            rapidDelivery = $("[data-testid='delivery-type.rapid']"),
+            goToCheckout = $("#validateButton"),
+            acceptanceWarning = $("[data-component='NotificationWrapper']").$("div", 1),
+            deliveryTime = $("[data-testid='parcels.delivery-type-time']"),
+            deliveryConditionsWarning = $$("#shipment-sidebar")
+            .findBy(text("Сроки доставки указаны без учёта дня приёма, а также не включают выходные и праздничные дни.")),
+            shipmentParameters = $("#shipment-sidebar span"),
+            tariffParameters = $("h2").parent().$("div", 1),
+            senderAddress = $("#senderAddress"),
+            recipientAddress = $("#recipientAddress"),
+            setRecipientName = $("#recipientName"),
+            madeActiveValuedParcelCheckbox = $(byTagAndText("span", "Ценная посылка")),
+            setValueAmount = $("#insuranceSum"),
+            choosePaymentMethodAtPostOffice = $("[data-testid='payment-method-select-formless'"),
+            getSendingTrackingNumber = $("[data-testid='parcels.ticket-submit-button-desktop']").$("span"),
+            totalAmount = $(byTagAndText("div", "Итого")),
+            tariffAmount = $(byTagAndText("div", "Ускоренный тариф")),
+            extraAmount = $("[data-testid='parcels.ticket-extra-expand']");;
+
+
     @Step("Проверяем, что перешли на страницу создания отправления")
-    public void checkRedirectedToShipmentsPage() {
-        webdriver().shouldHave(url("https://www.pochta.ru/shipment?type=PARCEL"));
+    public void checkRedirectedToShipmentsPage(String parcelUrl) {
+        webdriver().shouldHave(url(parcelUrl));
     }
 
-    @Step("Заполнеяет минимально необходимые поля для посылки обычновенной")
-    public void fillMinimumRequiredFieldsForParcel(String addressFrom, String addressTo, String weight) {
-        $("#addressFrom").setValue(addressFrom);
+    @Step("Заполнеяет минимально необходимые поля: от кого, кому, вес, габариты")
+    public void fillAddresseeAndSenderDetails(String addressFrom, String addressTo, String weight, String dimension) {
 
-        $(byTagAndText("span", "115127")).shouldBe(visible, Duration.ofSeconds(3)).click();
-        $("#addressTo").setValue(addressTo);
-        $(byTagAndText("span", "141301")).click();
-        $("#weight").setValue(weight);
-        $(byTagAndText("span", "1 кг")).click();
-        $("[data-testid=dimension-typical]").click();
-        $("[data-testid=dimension-typical-size-m]").click();
-        $("[type=submit]").click();
+        setSenderAddress.setValue(addressFrom).click();
+        actions().sendKeys(Keys.ARROW_DOWN).perform();
+        setRecipientAddress.setValue(addressTo);
+        setWeight.setValue(weight);
+        dimensionStandardMenu.click();
+        dimensionSizeM.click();
+        dimensionSizeSubmit.click();
 
-        assertThat($("#addressFrom").getText()).isEqualTo(addressFrom);
-        assertThat($("#addressTo").getText()).isEqualTo(addressTo);
-        assertThat($("#weight").getValue()).isEqualTo(weight);
+        assertThat(setSenderAddress.getText()).isEqualTo(addressFrom);
+        assertThat(setRecipientAddress.getText()).isEqualTo(addressTo);
+        assertThat(setWeight.getValue()).isEqualTo(weight);
+        assertThat(setDimention.getText()).isEqualTo(dimension);
 
     }
 
     @Step("Выбрать вид пересылки Ускоренный")
-    public void setForwardingType() {
-        $("[data-testid='delivery-type.rapid']").click();
+    public ShipmentsPage setForwardingType() {
+        rapidDelivery.click();
+        return this;
     }
 
-    @Step("Сверяем что сумма тарифа у выбранного типа пересылки соответствует сумме в виджете Оформления")
-    public void checkTarifValueCorrespondtoForwardingTypeAndConfirm() {
-        String value1 = $("[data-testid='parcels.delivery-type-price']").$("span").
-                getValue();
-        String value2 = $("[data-testid='parcels.ticket-item']").$("span").
-                getValue();
-        Assertions.assertEquals(value2, value1);
-        $("#validateButton").click();
+    @Step("Перейти к оформлению")
+    public void goToCheckout() {
+        goToCheckout.click();
     }
 
-    @Step("Смотрит варианты сроков доставки")
-    public void checkDeliveryTerms() {
-        $$("[data-testid='parcels.delivery-type-time']").
-                shouldBe(sizeNotEqual(0));
-
+    @Step("Перейти к оформлению через станицу с вводом данных личного кабинета")
+    public void goToCheckoutThrowLoginPage() {
+        goToCheckout.click();
+        $("h2").shouldHave(text("Вход с Почта ID"));
     }
+
+
 
     @Step("Отображается предупреждение об условиях приема к пересылке")
-    public void canSeeWarningRegardingAcceptanceCondition() {
-        $("[data-component='NotificationWrapper']").$("div", 1).
-                shouldBe(visible);
+    public ShipmentsPage canSeeWarningRegardingAcceptanceCondition() {
+        acceptanceWarning.shouldBe(visible);
+        return this;
     }
 
     @Step("Ниже вариантов доставки отображается строчка об особенностях сроков доставки")
-    public void canSeeWarningRegardingDeliveryTerms() {
-        $$("#shipment-sidebar")
-                .findBy(text("Сроки доставки указаны без учёта дня приёма, а также не включают выходные и праздничные дни."))
+    public ShipmentsPage canSeeWarningRegardingDeliveryTerms() {
+        deliveryConditionsWarning
                 .shouldBe(visible);
+        return this;
     }
 
     @Step("Проверяем правильность введенных параметров посылки")
-    public void checkCorrectnessOfPacelFields(String addressFrom, String addressTo) {
-        $("#shipment-sidebar span").shouldHave(text("Москва — Сергиев Посад."));
-        $("h2").parent().$("div", 1).shouldHave(text("Ускоренный, до 1–2 дней"));
-        $("#senderAddress").shouldHave(text(addressFrom));
-        $("#recipientAddress").shouldHave(text(addressTo));
-
+    public void checkCorrectnessOfPacelFields(String addressFrom, String addressTo, String shipmentParams, String tariffParams) {
+        shipmentParameters.shouldHave(text(shipmentParams));
+        tariffParameters.shouldHave(text(tariffParams));
+        senderAddress.shouldHave(text(addressFrom));
+        recipientAddress.shouldHave(text(addressTo));
     }
 
     @Step("Заполняет ФИО получателя")
-    public void fillAddresseeName() {
-        $("#recipientName").setValue("Иванов Иван Иванович").pressEscape();
-        assertThat($("#recipientName").getValue()).isEqualTo("Иванов Иван Иванович");
+    public ShipmentsPage fillAddresseeName(String recipientName) {
+        setRecipientName.setValue(recipientName).pressEscape();
+
+        assertThat(setRecipientName.getValue()).isEqualTo(recipientName);
+        return this;
     }
 
     @Step("Выбирает вариант ценной посылки и указывает ценность")
-    public void chooseCheckboxValuedParcel() {
-        $(byTagAndText("span", "Ценная посылка")).click();
-        $("#insuranceSum").setValue("100");
+    public ShipmentsPage setValueOfParcel(String value) {
+        madeActiveValuedParcelCheckbox.click();
+        setValueAmount.setValue(value);
 
-        assertThat($("#insuranceSum").getValue()).isEqualTo("100");
+        assertThat(setValueAmount.getValue()).isEqualTo(value);
+        return this;
     }
 
     @Step("Выбирает способ оплаты В отделении")
     public void choosePaymentMethod() {
-        $("[data-testid='payment-method-select-formless'").click();
-        $("[data-testid='parcels.ticket-submit-button-desktop']").$("span").
-            shouldHave(text("Получить трек-номер"));
+        choosePaymentMethodAtPostOffice.click();
+
+        assertThat(getSendingTrackingNumber.getText()).isEqualTo("Получить трек-номер");
     }
 
     @Step("Проверяем что сумма Итого верна")
-    public void checkTotalValueAmount() {
+    public void checkTotalValueAmount(String sendTotalAmount, String sendTariffAmount, String addCostAmount) {
         sleep(2000);
-        assertThat($(byTagAndText("div", "Итого")).sibling(0).$("div").getText()).
-                isEqualTo("369,60 ₽");
-        assertThat($(byTagAndText("div", "Ускоренный тариф")).sibling(0).getText())
-                .isEqualTo("366,00 ₽");
-        assertThat($("[data-testid='parcels.ticket-extra-expand']").sibling(0).$("span").getText())
-                .isEqualTo("3,60 ₽");
+        assertThat(totalAmount.sibling(0).$("div").getText()).
+                isEqualTo(sendTotalAmount);
+        assertThat(tariffAmount.sibling(0).getText())
+                .isEqualTo(sendTariffAmount);
+        assertThat(extraAmount.sibling(0).$("span").getText())
+                .isEqualTo(addCostAmount);
     }
+
+    @Step("Заполнить то кого")
+    public void fillSenderDetails(String addressFrom) {
+
+        setSenderAddress.setValue(addressFrom).press(Keys.ARROW_DOWN).pressEnter();
+    }
+
+    @Step("Заполнить кому")
+    public void fillAddresseeDetails(String addressTo) {
+
+        setRecipientAddress.setValue(addressTo).press(Keys.ARROW_DOWN).pressEnter();
+    }
+
+    @Step("Заполнить вес")
+    public void fillItemWeight(String weight) {
+
+        setWeight.setValue(weight).press(Keys.ARROW_DOWN).pressEnter();
+    }
+
 
 }

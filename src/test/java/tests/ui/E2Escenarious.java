@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import static com.codeborne.selenide.AssertionMode.SOFT;
 import static com.codeborne.selenide.Selenide.$;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("e2e")
 @ExtendWith(SoftAssertsExtension.class)
@@ -31,31 +32,42 @@ public class E2Escenarious extends TestBase {
             newMonth = "2024: Сентябрь, Ноябрь",
             newAmount = "743,90 ₽",
             month = "2024: Сентябрь",
-            searchData = "Сроки";
+            searchData = "Сроки",
+            dimension = "30x20x15 см",
+            shipmentParams = "Москва — Сергиев Посад.",
+            tariffParams = "Ускоренный, до 1–2 дней",
+            recipientName = "Иванов Иван Иванович",
+            parcelUrl = "https://www.pochta.ru/shipment?type=PARCEL",
+            linkToResults = "/support/post-rules/delivery-terms",
+            valueOfParcel = "100",
+            sendTotalAmount = "369,60 ₽",
+            sendTariffAmount = "366,00 ₽",
+            addCostAmount = "3,60 ₽";
 
 
     @Test
     @Feature("Поиск информации на сайте")
     @Story("Через поиск на сайте найти сроки доставки посылок")
-    @DisplayName("Пользователь может найти сроки доставки через поиск на сайте")
+    @DisplayName("Находит сроки доставки через поиск на сайте, скачивает их -> заполняет данные и отображаются сроки интерактивно")
     @Owner("Роман Чесанов (@ChesKnow)")
     @Severity(SeverityLevel.NORMAL)
     @Tag("positive")
     @Tag("regress")
-    void customerCanFindAndDownloadDeliveryTerms() throws IOException {
+    @Tag("e2e")
+    void canFindAndDownloadDeliveryTerms() throws IOException {
 
 
 
         mainPage.openMainPage();
         mainPage.startSearchOnSite();
         mainPage.enterSearchData(searchData);
-        mainPage.chooseSearchDataInSearchResults("/support/post-rules/delivery-terms");
+        mainPage.chooseSearchDataInSearchResults(linkToResults);
 
         supportPage.scrollToTheBottomAndClickToTheLink();
         supportPage.chooseParcelDeliveryTerms();
 
-        shipmentsPage.fillMinimumRequiredFieldsForParcel(addressFrom, addressTo, weight);
-        shipmentsPage.checkDeliveryTerms();
+        shipmentsPage.fillAddresseeAndSenderDetails(addressFrom, addressTo, weight, dimension);
+
         shipmentsPage.canSeeWarningRegardingAcceptanceCondition();
         shipmentsPage.canSeeWarningRegardingDeliveryTerms();
 
@@ -65,31 +77,33 @@ public class E2Escenarious extends TestBase {
     @Test
     @Feature("Отправка посылок онлайн")
     @Story("Создать отправку посылки онлайн")
-    @DisplayName("Авторизованный Пользователь может создать отправку посылки онлайн по тарифу ускоренный")
-    @Owner("Роман Чесанов (@ChesKnow")
+    @DisplayName("Клиент может создать отправку посылки онлайн по тарифу ускоренный с оплатой в отделении связи")
+    @Owner("Роман Чесанов (@ChesKnow)")
     @Severity(SeverityLevel.CRITICAL)
     @Tag("positive")
     @Tag("regress")
-    void authorizedUserCanCreateNewParcelSending() {
+    void canCreateNewParcelSendingThrowPostOfficePayment() {
         Configuration.assertionMode = SOFT;
 
 
         mainPage.openMainPage();
-        mainPage.chooseParcelInPopupMenuSending();
+        mainPage.chooseParcelInPopupMenuSending(parcelUrl);
 
-        shipmentsPage.checkRedirectedToShipmentsPage();
-        shipmentsPage.fillMinimumRequiredFieldsForParcel(addressFrom, addressTo, weight);
+
+        shipmentsPage.fillAddresseeAndSenderDetails(addressFrom, addressTo, weight, dimension);
         shipmentsPage.setForwardingType();
-        shipmentsPage.checkTarifValueCorrespondtoForwardingTypeAndConfirm();
+        shipmentsPage.goToCheckoutThrowLoginPage();
 
         loginPage.enterCredentialsWithSubmit();
 
-        shipmentsPage.checkRedirectedToShipmentsPage();
-        shipmentsPage.checkCorrectnessOfPacelFields(addressFrom, addressTo);
-        shipmentsPage.fillAddresseeName();
-        shipmentsPage.chooseCheckboxValuedParcel();
+        shipmentsPage.checkRedirectedToShipmentsPage(parcelUrl);
+        shipmentsPage.checkCorrectnessOfPacelFields(addressFrom, addressTo, shipmentParams, tariffParams);
+        shipmentsPage.fillAddresseeName(recipientName);
+        shipmentsPage.setValueOfParcel(valueOfParcel);
+        shipmentsPage.checkTotalValueAmount(sendTotalAmount, sendTariffAmount, addCostAmount);
         shipmentsPage.choosePaymentMethod();
-        shipmentsPage.checkTotalValueAmount();
+
+
 
     }
 

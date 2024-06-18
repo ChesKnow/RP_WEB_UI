@@ -42,15 +42,17 @@ public class PodpiskaPage {
 
 
     @Step("Поиск по полному наименованию журнала")
-    public void searchToMagazineByFullTitle(String magazineTitle) {
+    public PodpiskaPage searchToMagazineByFullTitle(String magazineTitle) {
         sleep(3000);
         actions().sendKeys(Keys.ESCAPE).perform();
         searchField.setValue(magazineTitle).pressEnter();
+        return this;
     }
 
     @Step("Подтвердить выбор журнала")
-    public void confirmChooseExpectedMagazine(String magazineTitle) {
+    public PodpiskaPage confirmChooseExpectedMagazine(String magazineTitle) {
         $(byTagAndText("h3", magazineTitle)).click();
+        return this;
     }
 
     @Step("Заполнить данные получателя")

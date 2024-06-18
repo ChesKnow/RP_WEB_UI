@@ -1,6 +1,5 @@
 package tests.ui;
 
-import com.codeborne.pdftest.PDF;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.junit5.SoftAssertsExtension;
 import com.codeborne.selenide.logevents.SelenideLogger;
@@ -8,7 +7,6 @@ import io.qameta.allure.*;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import pages.*;
 
 import java.io.IOException;
 
@@ -33,8 +31,6 @@ public class E2Escenarious extends TestBase {
             newMonth = "2024: Сентябрь, Ноябрь",
             newAmount = "743,90 ₽",
             month = "2024: Сентябрь",
-            shortMonth = "Ноя",
-            noAmount = "0,00 ₽",
             searchData = "Сроки";
 
 
@@ -50,7 +46,7 @@ public class E2Escenarious extends TestBase {
 
 
 
-        mainPage.openMainPageWithChecking();
+        mainPage.openMainPage();
         mainPage.startSearchOnSite();
         mainPage.enterSearchData(searchData);
         mainPage.chooseSearchDataInSearchResults("/support/post-rules/delivery-terms");
@@ -78,7 +74,7 @@ public class E2Escenarious extends TestBase {
         Configuration.assertionMode = SOFT;
 
 
-        mainPage.openMainPageWithChecking();
+        mainPage.openMainPage();
         mainPage.chooseParcelInPopupMenuSending();
 
         shipmentsPage.checkRedirectedToShipmentsPage();
@@ -112,25 +108,33 @@ public class E2Escenarious extends TestBase {
 
 
 
-        mainPage.openMainPageWithChecking();
+        mainPage.openMainPage();
         mainPage.chooseSubscribeToMagazineInPopupMenu();
 
         podpiskaPage.searchToMagazineByFullTitle(magazineTitle);
         Assertions.assertEquals("Результаты по запросу «Юность» 3 результата", $("h1").getText());
         podpiskaPage.confirmChooseExpectedMagazine(magazineTitle);
-        podpiskaPage.fillRecipientData(fio, address);
-        podpiskaPage.chooseSeptemberMonthOfSubsription("Сен");
-        podpiskaPage.checkAmountSumAndPutMagazineToCart(amount, fullAmount, totalAmount);
-        podpiskaPage.buyGoods();
-        podpiskaPage.redirectToCart();
-        podpiskaPage.checkAddresseeAndAmountIsCorrect(magazineTitle, fio, fullAddress, month, amount);
-        podpiskaPage.customerRemindAndAddNovemberMonth(amount, newAmount, shortMonth);
-        podpiskaPage.checkAddresseeAndAmountIsCorrect(magazineTitle, fio, fullAddress, newMonth, newAmount);
-        podpiskaPage.customerStartBuyProcess();
+        podpiskaPage
+                .fillRecipientData(fio, address)
+                .chooseBuyForWhom("SELF")
+                .chooseMethodOfDelivery("TO_ADDRESSEE")
+                .chooseMonthOfSubsription("Сен")
+                .checkAmountSum(amount, fullAmount, totalAmount)
+                .putGoodsIntoTheCart()
+                .redirectToCart()
+                .checkDataInTheCart(magazineTitle, fio, fullAddress, month, amount)
+                .changeDataInTheCart();
 
-        loginPage.enterCredentialsWithSubmit();
+        podpiskaPage
+                .fillRecipientData(fio, address)
+                .chooseBuyForWhom("SELF")
+                .chooseMethodOfDelivery("TO_ADDRESSEE")
+                .chooseMonthOfSubsription("Ноя")
+                .acceptChanges();
 
-        podpiskaPage.customerDeleteGoodsFromCart(noAmount);
+        podpiskaPage
+                .checkDataInTheCart(magazineTitle, fio, fullAddress, newMonth, newAmount)
+                .startBuyProcess();
 
     }
 

@@ -14,6 +14,7 @@ import static com.codeborne.selenide.Selenide.open;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LoginPage {
+
     private final SelenideElement
             username = $("#username"),
             user_password = $("#userpassword"),

@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import static com.codeborne.selenide.AssertionMode.SOFT;
 import static com.codeborne.selenide.Selenide.$;
+import static io.qameta.allure.Allure.step;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("e2e")
@@ -23,7 +24,9 @@ public class E2Escenarious extends TestBase {
             magazineTitle = "Юность",
             address = "Сергиев Посад Матросова 7 1",
             addressTo = "обл Московская, г Сергиев Посад, ул Матросова, д. 7, кв. 1",
+            indexFrom = "115127",
             addressFrom = "г Москва, ш Варшавское, д. 37",
+            indexTo = "141301",
             weight = "1 кг",
             fullAddress = "141301, Московская обл, Сергиев Посад, Матросова ул, 7, кв 1",
             amount = "371,95 ₽",
@@ -66,7 +69,7 @@ public class E2Escenarious extends TestBase {
         supportPage.scrollToTheBottomAndClickToTheLink();
         supportPage.chooseParcelDeliveryTerms();
 
-        shipmentsPage.fillAddresseeAndSenderDetails(addressFrom, addressTo, weight, dimension);
+        shipmentsPage.fillAddresseeAndSenderDetails(addressFrom, indexFrom, addressTo, indexTo, weight, dimension);
 
         shipmentsPage.canSeeWarningRegardingAcceptanceCondition();
         shipmentsPage.canSeeWarningRegardingDeliveryTerms();
@@ -86,11 +89,14 @@ public class E2Escenarious extends TestBase {
         Configuration.assertionMode = SOFT;
 
 
-        mainPage.openMainPage();
-        mainPage.chooseParcelInPopupMenuSending(parcelUrl);
+        step("Открываем главную страницу", () -> {
+            mainPage.openMainPage();
+        });
+        step("В меню услуг выбираем Отправить - Посылку", () -> {
+                    mainPage.chooseParcelInPopupMenuSending(parcelUrl);
+                });
 
-
-        shipmentsPage.fillAddresseeAndSenderDetails(addressFrom, addressTo, weight, dimension);
+        shipmentsPage.fillAddresseeAndSenderDetails(addressFrom, indexFrom, addressTo, indexTo, weight, dimension);
         shipmentsPage.setForwardingType();
         shipmentsPage.goToCheckoutThrowLoginPage();
 
@@ -140,9 +146,6 @@ public class E2Escenarious extends TestBase {
                 .changeDataInTheCart();
 
         podpiskaPage
-                .fillRecipientData(fio, address)
-                .chooseBuyForWhom("SELF")
-                .chooseMethodOfDelivery("TO_ADDRESSEE")
                 .chooseMonthOfSubsription("Ноя")
                 .acceptChanges();
 

@@ -50,11 +50,12 @@ public class ShipmentsPage {
     }
 
     @Step("Заполнеяет минимально необходимые поля: от кого, кому, вес, габариты")
-    public void fillAddresseeAndSenderDetails(String addressFrom, String addressTo, String weight, String dimension) {
+    public void fillAddresseeAndSenderDetails(String addressFrom, String indexFrom, String addressTo, String indexTo, String weight, String dimension) {
 
-        setSenderAddress.setValue(addressFrom).click();
-        actions().sendKeys(Keys.ARROW_DOWN).perform();
+        setSenderAddress.setValue(addressFrom);
+        $(byTagAndText("span",indexFrom)).click();
         setRecipientAddress.setValue(addressTo);
+        $(byTagAndText("span",indexTo)).click();
         setWeight.setValue(weight);
         dimensionStandardMenu.click();
         dimensionSizeM.click();
@@ -133,7 +134,8 @@ public class ShipmentsPage {
 
     @Step("Проверяем что сумма Итого верна")
     public void checkTotalValueAmount(String sendTotalAmount, String sendTariffAmount, String addCostAmount) {
-        sleep(2000);
+
+        $("[data-testid='parcels.spinner']").should(disappear, Duration.ofSeconds(5));
         assertThat(totalAmount.sibling(0).$("div").getText()).
                 isEqualTo(sendTotalAmount);
         assertThat(tariffAmount.sibling(0).getText())

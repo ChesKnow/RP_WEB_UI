@@ -32,8 +32,7 @@ public class MainPageTests extends TestBase {
     @Tag("WEB")
     @DisplayName("На главной странице должен отображаться список секций")
     void mainPageShouldContainsAllOfStandardSections(List<String> expectedSections) {
-        open("https://www.pochta.ru/");
-        sleep(5000);
+        mainPage.openMainPage();
         $$("[data-submenu='submenu']").filter(visible).shouldHave(texts(expectedSections));
 
     }

@@ -29,7 +29,7 @@ public class MainPage {
     private final ElementsCollection serviceMenu = $$("[data-submenu=submenu]");
 
 
-    @Step("Пользователь заходит на главную страницу")
+
     public MainPage openMainPage() {
         open("");
         title.shouldHave(text(HeaderSections.TITLE.getName()));
@@ -64,7 +64,7 @@ public class MainPage {
         serviceMenu.findBy(text(SubmenuSections.SERVICES_ONLINE.getName())).hover();
         $(byTagAndText("span", SubmenuSectionServicesOnline.SUBSCRIBE_FOR_MAGAZINE.getName())).click();
         switchTo().window(1);
-        actions().sendKeys(Keys.ESCAPE);
+        actions().sendKeys(Keys.ESCAPE).perform();
         headerTitle.shouldHave(text(HeaderSections.SUBSCRIBE_FOR_PERIODICAL.getName()));
 
     }

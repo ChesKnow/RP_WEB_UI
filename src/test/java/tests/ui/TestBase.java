@@ -24,7 +24,8 @@ public class TestBase {
 
         Configuration.baseUrl = "https://www.pochta.ru/";
         Configuration.browserSize = "1920x1080";
-        Configuration.pageLoadStrategy = "normal";
+        //Configuration.pageLoadStrategy = "normal";
+        //Configuration.timeout = 6000;
 
 
     }

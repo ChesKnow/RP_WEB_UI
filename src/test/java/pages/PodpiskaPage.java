@@ -43,8 +43,7 @@ public class PodpiskaPage {
 
     @Step("Поиск по полному наименованию журнала")
     public PodpiskaPage searchToMagazineByFullTitle(String magazineTitle) {
-        sleep(3000);
-        actions().sendKeys(Keys.ESCAPE).perform();
+
         searchField.setValue(magazineTitle).pressEnter();
         return this;
     }
@@ -85,17 +84,14 @@ public class PodpiskaPage {
 
     @Step("Выбрать месяц подписки")
     public PodpiskaPage chooseMonthOfSubsription(String month) {
-        //todo switchcasedepent on month choosen
-        for (ShortMonthsNames i : ShortMonthsNames.values()) {
-            if (!i.getName().equalsIgnoreCase(month)) {
 
-        $(byTagAndText("div", i.getName())).click();
+        $(byTagAndText("div", month)).click();
 //        $(byTagAndText("div", "Авг")).click();
 //        $(byTagAndText("div", "Окт")).click();
 //        $(byTagAndText("div", "Ноя")).click();
 //        $(byTagAndText("div", "Дек")).click();
-            }
-        }
+
+
         return this;
     }
 

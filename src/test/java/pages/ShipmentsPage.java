@@ -62,6 +62,9 @@ public class ShipmentsPage {
         dimensionSizeM.click();
         dimensionSizeSubmit.click();
 
+        //setWeight.click(); // попытка обойти баг неотображения
+        //actions().sendKeys(Keys.ARROW_DOWN).perform(); // попытка обойти баг неотображения
+
         assertThat(setSenderAddress.getText()).isEqualTo(addressFrom);
         assertThat(setRecipientAddress.getText()).isEqualTo(addressTo);
         assertThat(setWeight.getValue()).isEqualTo(weight);
@@ -71,6 +74,7 @@ public class ShipmentsPage {
 
     @Step("Выбрать вид пересылки Ускоренный")
     public ShipmentsPage setForwardingType() {
+        rapidDelivery.shouldHave(text("1-2 дня"));
         rapidDelivery.click();
         return this;
     }
@@ -82,6 +86,7 @@ public class ShipmentsPage {
 
     @Step("Перейти к оформлению через станицу с вводом данных личного кабинета")
     public void goToCheckoutThrowLoginPage() {
+        goToCheckout.shouldHave(text("Перейти к оформлению"));
         goToCheckout.click();
         $("h2").shouldHave(text("Вход с Почта ID"));
     }

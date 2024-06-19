@@ -7,6 +7,7 @@ import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.openqa.selenium.chrome.ChromeOptions;
 import pages.*;
 
 
@@ -24,8 +25,15 @@ public class TestBase {
 
         Configuration.baseUrl = "https://www.pochta.ru/";
         Configuration.browserSize = "1920x1080";
-        //Configuration.pageLoadStrategy = "normal";
-        //Configuration.timeout = 6000;
+        Configuration.browserVersion = "125";
+
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--disable-features=OptimizationHints, OptimizationHintsFetching, Translate");
+        options.addArguments("--disable-notifications");
+        options.addArguments("--disable-popup-blocking");
+        Configuration.browserCapabilities = options;
+
 
 
     }

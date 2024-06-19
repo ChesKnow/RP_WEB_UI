@@ -29,7 +29,7 @@ public class MainPage {
     private final ElementsCollection serviceMenu = $$("[data-submenu=submenu]");
 
 
-
+    @Step("Открыть главную страницу")
     public MainPage openMainPage() {
         open("");
         title.shouldHave(text(HeaderSections.TITLE.getName()));

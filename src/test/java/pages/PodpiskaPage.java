@@ -7,6 +7,8 @@ import io.qameta.allure.Step;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.Keys;
 
+import java.time.Duration;
+
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byTagAndText;
 import static com.codeborne.selenide.Selenide.*;
@@ -83,15 +85,22 @@ public class PodpiskaPage {
 
 
     @Step("Выбрать месяц подписки")
-    public PodpiskaPage chooseMonthOfSubsription(String month) {
+    public PodpiskaPage chooseMonthOfSubsription() {
 
-        $(byTagAndText("div", month)).click();
-//        $(byTagAndText("div", "Авг")).click();
-//        $(byTagAndText("div", "Окт")).click();
-//        $(byTagAndText("div", "Ноя")).click();
-//        $(byTagAndText("div", "Дек")).click();
+        $(byTagAndText("div", "Июл")).click();
+        $(byTagAndText("div", "Авг")).click();
+        $(byTagAndText("div", "Окт")).click();
+        $(byTagAndText("div", "Ноя")).click();
+        $(byTagAndText("div", "Дек")).click();
 
 
+        return this;
+    }
+
+    @Step("Добавить месяц подписки")
+    public PodpiskaPage addMonthOfSubsription() {
+
+        $(byTagAndText("div", "Ноя")).click();
         return this;
     }
 
@@ -107,7 +116,7 @@ public class PodpiskaPage {
 
     @Step("Положить журнал в корзину")
     public PodpiskaPage putGoodsIntoTheCart() {
-        buyButton.click();
+        buyButton.shouldBe(clickable, Duration.ofSeconds(3)).click();
         return this;
     }
 

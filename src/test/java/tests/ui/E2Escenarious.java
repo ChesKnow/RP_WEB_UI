@@ -89,25 +89,39 @@ public class E2Escenarious extends TestBase {
         Configuration.assertionMode = SOFT;
 
 
-        step("Открываем главную страницу", () -> {
-            mainPage.openMainPage();
+        step("Открываем главную страницу и выбрать в меню услуг отправить посылку", () -> {
+            mainPage.openMainPage()
+                    .chooseParcelInPopupMenuSending(parcelUrl);
         });
-        step("В меню услуг выбираем Отправить - Посылку", () -> {
-                    mainPage.chooseParcelInPopupMenuSending(parcelUrl);
-                });
-
-        shipmentsPage.fillAddresseeAndSenderDetails(addressFrom, indexFrom, addressTo, indexTo, weight, dimension);
-        shipmentsPage.setForwardingType();
-        shipmentsPage.goToCheckoutThrowLoginPage();
-
-        loginPage.enterCredentialsWithSubmit();
-
-        shipmentsPage.checkRedirectedToShipmentsPage(parcelUrl);
-        shipmentsPage.checkCorrectnessOfPacelFields(addressFrom, addressTo, shipmentParams, tariffParams);
-        shipmentsPage.fillAddresseeName(recipientName);
-        shipmentsPage.setValueOfParcel(valueOfParcel);
-        shipmentsPage.checkTotalValueAmount(sendTotalAmount, sendTariffAmount, addCostAmount);
-        shipmentsPage.choosePaymentMethod();
+        step("Заполнить минимально необходимые поля для отправки", () -> {
+             shipmentsPage.fillAddresseeAndSenderDetails(addressFrom, indexFrom, addressTo, indexTo, weight, dimension);
+        });
+        step("Выбрать вид пересылки Ускоренный", () ->{
+            shipmentsPage.setForwardingType();
+        });
+        step("Перейти к оформлению через станицу с вводом данных личного кабинета" , () -> {
+             shipmentsPage.goToCheckoutThrowLoginPage();
+        });
+        step("Ввести логин и пароль и нажать Войти", () -> {
+             loginPage.enterCredentialsWithSubmit();
+        });
+        step("Проверить переход на страницу и правильность введенных данных", () -> {
+              shipmentsPage
+                       .checkRedirectedToShipmentsPage(parcelUrl)
+                       .checkCorrectnessOfPacelFields(addressFrom, addressTo, shipmentParams, tariffParams);
+        });
+        step("Заполнить поле фио получателя", () -> {
+              shipmentsPage.fillAddresseeName(recipientName);
+        });
+        step("Установить ценность посылки "+ valueOfParcel,  () -> {
+              shipmentsPage.setValueOfParcel(valueOfParcel);
+        });
+        step("Проверить что сумма Итого верна", () -> {
+            shipmentsPage.checkTotalValueAmount(sendTotalAmount, sendTariffAmount, addCostAmount);
+        });
+        step("Выбрать метод оплаты в отделении связи", () -> {
+            shipmentsPage.choosePaymentMethod();
+        });
 
 
 
@@ -126,11 +140,8 @@ public class E2Escenarious extends TestBase {
 
         SelenideLogger.addListener("allure", new AllureSelenide());
 
-
-
         mainPage.openMainPage();
         mainPage.chooseSubscribeToMagazineInPopupMenu();
-
         podpiskaPage.searchToMagazineByFullTitle(magazineTitle);
         Assertions.assertEquals("Результаты по запросу «Юность» 3 результата", $("h1").getText());
         podpiskaPage.confirmChooseExpectedMagazine(magazineTitle);
@@ -138,7 +149,7 @@ public class E2Escenarious extends TestBase {
                 .fillRecipientData(fio, address)
                 .chooseBuyForWhom("SELF")
                 .chooseMethodOfDelivery("TO_ADDRESSEE")
-                .chooseMonthOfSubsription("Сен")
+                .chooseMonthOfSubsription()
                 .checkAmountSum(amount, fullAmount, totalAmount)
                 .putGoodsIntoTheCart()
                 .redirectToCart()
@@ -146,7 +157,7 @@ public class E2Escenarious extends TestBase {
                 .changeDataInTheCart();
 
         podpiskaPage
-                .chooseMonthOfSubsription("Ноя")
+                .addMonthOfSubsription()
                 .acceptChanges();
 
         podpiskaPage

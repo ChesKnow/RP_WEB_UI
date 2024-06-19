@@ -45,8 +45,9 @@ public class ShipmentsPage {
 
 
     @Step("Проверяем, что перешли на страницу создания отправления")
-    public void checkRedirectedToShipmentsPage(String parcelUrl) {
+    public ShipmentsPage checkRedirectedToShipmentsPage(String parcelUrl) {
         webdriver().shouldHave(url(parcelUrl));
+        return this;
     }
 
     @Step("Заполнеяет минимально необходимые поля: от кого, кому, вес, габариты")

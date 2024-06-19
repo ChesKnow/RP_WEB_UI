@@ -14,6 +14,7 @@ import static com.codeborne.selenide.Selenide.open;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LoginPage {
+
     private final SelenideElement
             username = $("#username"),
             user_password = $("#userpassword"),
@@ -27,10 +28,8 @@ public class LoginPage {
     public void enterCredentialsWithSubmit() {
         username.setValue(authConfig.getUserName());
         user_password.setValue(authConfig.getUserPassword());
-
         assertThat(authConfig.getUserName()).isEqualTo(username.getValue());
         assertThat(authConfig.getUserPassword()).isEqualTo(user_password.getValue());
-
         submit_btn.click();
     }
 

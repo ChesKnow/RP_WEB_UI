@@ -13,15 +13,22 @@ import static com.codeborne.selenide.Selectors.byTagAndText;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.WebDriverConditions.url;
 
-public class SupportPage extends TestBase {
+public class SupportPage {
+
+    private final String
+            tagName = "a",
+            linkName = "13.06.2024",
+            fileAuthor = "Курочкина Мария Владимировна";
+
 
     @Step("Прокручивает страницу вниз и скачивает файл по ссылке")
-    public void scrollToTheBottomAndClickToTheLink(String link_name) throws IOException {
+    public void scrollToTheBottomAndClickToTheLink() throws IOException {
 
-        File downloaded = $(byTagAndText("a", link_name)).download();
+
+        File downloaded = $(byTagAndText(tagName, linkName)).download();
         PDF pdf = new PDF(downloaded);
 
-        Assertions.assertEquals("Боробова Динна Леонидовна", pdf.author);
+        Assertions.assertEquals(fileAuthor, pdf.author);
     }
 
     @Step("Нажимает на кнопку Посылки под текстом Рассчитать стоимость доставки")

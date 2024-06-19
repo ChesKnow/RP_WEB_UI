@@ -20,6 +20,22 @@ import static com.codeborne.selenide.Selenide.*;
 public class MainPageTests extends TestBase {
 
 
+    static Stream<Arguments> mainPageShouldContainsAllOfStandardSections() {
+        return Stream.of(
+                Arguments.of(List.of("Отправить", "Получить", "Платежи и переводы", "Услуги в отделениях", "Онлайн-сервисы"))
+
+        );
+    }
+
+    @MethodSource()
+    @ParameterizedTest
+    @Tag("WEB")
+    @DisplayName("На главной странице должен отображаться список секций")
+    void mainPageShouldContainsAllOfStandardSections(List<String> expectedSections) {
+        mainPage.openMainPage();
+        $$("[data-submenu='submenu']").filter(visible).shouldHave(texts(expectedSections));
+
+    }
 
 
 }

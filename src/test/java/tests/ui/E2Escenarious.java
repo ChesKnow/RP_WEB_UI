@@ -7,12 +7,13 @@ import io.qameta.allure.*;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import pages.*;
 
 import java.io.IOException;
 
 import static com.codeborne.selenide.AssertionMode.SOFT;
-import static com.codeborne.selenide.Selenide.sleep;
+import static com.codeborne.selenide.Selenide.$;
+import static io.qameta.allure.Allure.step;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("e2e")
 @ExtendWith(SoftAssertsExtension.class)
@@ -20,45 +21,56 @@ public class E2Escenarious extends TestBase {
 
     private final String
             fio = "Чесанов Роман Владимирович",
-            magazine_title = "Юность",
+            magazineTitle = "Юность",
             address = "Сергиев Посад Матросова 7 1",
-            address_to = "обл Московская, г Сергиев Посад, ул Матросова, д. 7, кв. 1",
-            address_from = "г Москва, ш Варшавское, д. 37",
+            addressTo = "обл Московская, г Сергиев Посад, ул Матросова, д. 7, кв. 1",
+            indexFrom = "115127",
+            addressFrom = "г Москва, ш Варшавское, д. 37",
+            indexTo = "141301",
             weight = "1 кг",
-            full_address = "141301, Московская обл, Сергиев Посад, Матросова ул, 7, кв 1",
+            fullAddress = "141301, Московская обл, Сергиев Посад, Матросова ул, 7, кв 1",
             amount = "371,95 ₽",
-            full_amount = "2231,70 ₽",
-            total_amount = "371,95 ₽",
-            new_month = "2024: Сентябрь, Ноябрь",
-            new_amount = "743,90 ₽",
+            fullAmount = "2231,70 ₽",
+            totalAmount = "371,95 ₽",
+            newMonth = "2024: Сентябрь, Ноябрь",
+            newAmount = "743,90 ₽",
             month = "2024: Сентябрь",
-            short_month = "Ноя",
-            no_amount = "0,00 ₽";
+            searchData = "Сроки",
+            dimension = "30x20x15 см",
+            shipmentParams = "Москва — Сергиев Посад.",
+            tariffParams = "Ускоренный, до 1–2 дней",
+            recipientName = "Иванов Иван Иванович",
+            parcelUrl = "https://www.pochta.ru/shipment?type=PARCEL",
+            linkToResults = "/support/post-rules/delivery-terms",
+            valueOfParcel = "100",
+            sendTotalAmount = "369,60 ₽",
+            sendTariffAmount = "366,00 ₽",
+            addCostAmount = "3,60 ₽";
+
 
     @Test
     @Feature("Поиск информации на сайте")
     @Story("Через поиск на сайте найти сроки доставки посылок")
-    @DisplayName("Пользователь может найти сроки доставки через поиск на сайте")
+    @DisplayName("Находит сроки доставки через поиск на сайте, скачивает их -> заполняет данные и отображаются сроки интерактивно")
     @Owner("Роман Чесанов (@ChesKnow)")
     @Severity(SeverityLevel.NORMAL)
     @Tag("positive")
     @Tag("regress")
-    void customerCanFindAndDownloadDeliveryTerms() throws IOException {
+    @Tag("e2e")
+    void canFindAndDownloadDeliveryTerms() throws IOException {
 
-        Configuration.assertionMode = SOFT;
 
-        MainPage mainPage = new MainPage();
-        SupportPage supportPage = new SupportPage();
-        ShipmentsPage shipmentsPage = new ShipmentsPage();
 
-        mainPage.openMainPageWithChecking();
+        mainPage.openMainPage();
         mainPage.startSearchOnSite();
-        mainPage.enterSearchData("Сроки");
-        mainPage.chooseSearchDataInSearchResults("Сроки доставки");
-        supportPage.scrollToTheBottomAndClickToTheLink("Контрольные сроки доставки посылок до 13.06.2024");
+        mainPage.enterSearchData(searchData);
+        mainPage.chooseSearchDataInSearchResults(linkToResults);
+
+        supportPage.scrollToTheBottomAndClickToTheLink();
         supportPage.chooseParcelDeliveryTerms();
-        shipmentsPage.fillMinimumRequiredFieldsForParcel(address_from, address_to, weight);
-        shipmentsPage.checkDeliveryTerms();
+
+        shipmentsPage.fillAddresseeAndSenderDetails(addressFrom, indexFrom, addressTo, indexTo, weight, dimension);
+
         shipmentsPage.canSeeWarningRegardingAcceptanceCondition();
         shipmentsPage.canSeeWarningRegardingDeliveryTerms();
 
@@ -68,34 +80,50 @@ public class E2Escenarious extends TestBase {
     @Test
     @Feature("Отправка посылок онлайн")
     @Story("Создать отправку посылки онлайн")
-    @DisplayName("Авторизованный Пользователь может создать отправку посылки онлайн по тарифу ускоренный")
-    @Owner("Роман Чесанов (@ChesKnow")
+    @DisplayName("Клиент может создать отправку посылки онлайн по тарифу ускоренный с оплатой в отделении связи")
+    @Owner("Роман Чесанов (@ChesKnow)")
     @Severity(SeverityLevel.CRITICAL)
     @Tag("positive")
     @Tag("regress")
-    void authorizedUserCanCreateNewParcelSending() {
+    void canCreateNewParcelSendingThrowPostOfficePayment() {
         Configuration.assertionMode = SOFT;
-        SelenideLogger.addListener("allure", new AllureSelenide());
-        MainPage mainPage = new MainPage();
-        ShipmentsPage shipmentsPage = new ShipmentsPage();
-        LoginPage loginPage = new LoginPage();
 
-        mainPage.openMainPageWithChecking();
-        mainPage.chooseParcelInPopupMenuSending();
 
-        shipmentsPage.checkRedirectedToShipmentsPage();
-        shipmentsPage.fillMinimumRequiredFieldsForParcel(address_from, address_to, weight);
-        shipmentsPage.setForwardingType();
-        shipmentsPage.checkTarifValueCorrespondtoForwardingTypeAndConfirm();
+        step("Открываем главную страницу и выбрать в меню услуг отправить посылку", () -> {
+            mainPage.openMainPage()
+                    .chooseParcelInPopupMenuSending(parcelUrl);
+        });
+        step("Заполнить минимально необходимые поля для отправки", () -> {
+             shipmentsPage.fillAddresseeAndSenderDetails(addressFrom, indexFrom, addressTo, indexTo, weight, dimension);
+        });
+        step("Выбрать вид пересылки Ускоренный", () ->{
+            shipmentsPage.setForwardingType();
+        });
+        step("Перейти к оформлению через станицу с вводом данных личного кабинета" , () -> {
+             shipmentsPage.goToCheckoutThrowLoginPage();
+        });
+        step("Ввести логин и пароль и нажать Войти", () -> {
+             loginPage.enterCredentialsWithSubmit();
+        });
+        step("Проверить переход на страницу и правильность введенных данных", () -> {
+              shipmentsPage
+                       .checkRedirectedToShipmentsPage(parcelUrl)
+                       .checkCorrectnessOfPacelFields(addressFrom, addressTo, shipmentParams, tariffParams);
+        });
+        step("Заполнить поле фио получателя", () -> {
+              shipmentsPage.fillAddresseeName(recipientName);
+        });
+        step("Установить ценность посылки "+ valueOfParcel,  () -> {
+              shipmentsPage.setValueOfParcel(valueOfParcel);
+        });
+        step("Проверить что сумма Итого верна", () -> {
+            shipmentsPage.checkTotalValueAmount(sendTotalAmount, sendTariffAmount, addCostAmount);
+        });
+        step("Выбрать метод оплаты в отделении связи", () -> {
+            shipmentsPage.choosePaymentMethod();
+        });
 
-        loginPage.enterCredentialsWithSubmit();
 
-        shipmentsPage.checkRedirectedToShipmentsPage();
-        shipmentsPage.checkCorrectnessOfPacelFields(address_from, address_to);
-        shipmentsPage.fillAddresseeName();
-        shipmentsPage.chooseCheckboxValuedParcel();
-        shipmentsPage.choosePaymentMethod();
-        shipmentsPage.checkTotalValueAmount();
 
     }
 
@@ -111,28 +139,30 @@ public class E2Escenarious extends TestBase {
 
 
         SelenideLogger.addListener("allure", new AllureSelenide());
-        PodpiskaPage podpiskaPage = new PodpiskaPage();
-        MainPage mainPage = new MainPage();
-        LoginPage loginPage = new LoginPage();
 
-
-        mainPage.openMainPageWithChecking();
+        mainPage.openMainPage();
         mainPage.chooseSubscribeToMagazineInPopupMenu();
+        podpiskaPage.searchToMagazineByFullTitle(magazineTitle);
+        Assertions.assertEquals("Результаты по запросу «Юность» 3 результата", $("h1").getText());
+        podpiskaPage.confirmChooseExpectedMagazine(magazineTitle);
+        podpiskaPage
+                .fillRecipientData(fio, address)
+                .chooseBuyForWhom("SELF")
+                .chooseMethodOfDelivery("TO_ADDRESSEE")
+                .chooseMonthOfSubsription()
+                .checkAmountSum(amount, fullAmount, totalAmount)
+                .putGoodsIntoTheCart()
+                .redirectToCart()
+                .checkDataInTheCart(magazineTitle, fio, fullAddress, month, amount)
+                .changeDataInTheCart();
 
-        podpiskaPage.searchToMagazineByFullTitle(magazine_title);
-        podpiskaPage.confirmChooseExpectedMagazine(magazine_title);
-        podpiskaPage.fillRecipientData(fio, address);
-        podpiskaPage.chooseSeptemberMonthOfSubsription();
-        podpiskaPage.checkAmountSumAndPutMagazineToCart(amount, full_amount, total_amount);
-        podpiskaPage.redirectToCart();
-        podpiskaPage.checkAddresseeAndAmountIsCorrect(magazine_title, fio, full_address, month, amount);
-        podpiskaPage.customerRemindAndAddNovemberMonth(amount, new_amount, short_month);
-        podpiskaPage.checkAddresseeAndAmountIsCorrect(magazine_title, fio, full_address, new_month, new_amount);
-        podpiskaPage.customerStartBuyProcess();
+        podpiskaPage
+                .addMonthOfSubsription()
+                .acceptChanges();
 
-        loginPage.enterCredentialsWithSubmit();
-
-        podpiskaPage.customerDeleteGoodsFromCart(no_amount);
+        podpiskaPage
+                .checkDataInTheCart(magazineTitle, fio, fullAddress, newMonth, newAmount)
+                .startBuyProcess();
 
     }
 
